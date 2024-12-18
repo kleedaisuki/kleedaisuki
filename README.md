@@ -1,12 +1,12 @@
-- 👋 Hi, I’m @kleedaisuki
-- 👀 I’m interested in computer science.
-- 🌱 I'm currently learning what I have mentioned in the previous line.
-- 💞️ I haven't been looking to collaborate yet.
-- 📫 Contact me with a mail to kleedaisuki@outlook.com.
-- 😄 Pronouns: he/him
-- ⚡ Fun fact: Lazy to set up a profile on my own, I used the profile template by GitHub as if I were filling in a form, finding template profiles are actually in the opposite to personalization.
+Hi, I'm @kleedaisuki.
 
-<!---
-kleedaisuki/kleedaisuki is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-You can click the Preview link to take a look at your changes.
---->
+So, what's this self-introduction used for? It seems that the Bio below the profile photo has played a similar function? Anyway, it's never too much to let others know about me. So, I finished this README.md.
+
+**About me**:
+
+- major in computer science.
+- not good at English and I'm trying to improve.
+- prefer Microsoft products for work, while Google's for daily life.
+- don't know how to set font in Markdown.
+- living in Tokyo.
+- not lolicon.
