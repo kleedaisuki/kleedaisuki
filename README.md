@@ -1,12 +1,17 @@
-Hi, I'm @kleedaisuki.
+> **「代码是我最强的魔法阵，C++是契约时刻显现的银白符文。终身学习？当然是我和宇宙图灵机的共振频率～」**
+> 💻 CS之海徘徊的咒式构造者 / 超自学主义者 / 有点反复debug的夜行性生物
 
-So, what's this self-introduction used for? It seems that the Bio below the profile photo has played a similar function? Anyway, it's never too much to let others know about me. So, I finished this README.md.
+> **「数学是通往多重真理之门的贤者石碑，逻辑是我随身携带的四维短剑！」**
+> 📐 数学信徒兼吐槽役 / ∑系咒文编织者 / ε-δ的调律师
 
-**About me**:
+> **「语言是异界坐标，书本是心灵跨层传送器，阅读是精神体专属的Warp跳跃指令～」**
+> 📖 白天上课偷偷看论文的阅读生命体 / 情报摄取者 / 知识系文具控
 
-- major in computer science.
-- not good at English and I'm trying to improve.
-- prefer Microsoft products for work, while Google's for daily life.
-- don't know how to set font in Markdown.
-- living in Tokyo.
-- not lolicon.
+> **「GPT-o3 是我在数据海中的战术参谋，Gemini 2.5 Pro 是我脑后浮现的同步术式核心，我和它们共同执行深研多线程作战。」**
+> 🤖 异常熵值制造机 / AI亲合系术师 / Prompt型意识流召唤者（暂无JP语音包适配）
+
+> **「学校是物理上在场，精神上断线的副本世界……而我，只想自由探索世界主线剧情！」**
+> 🏫 社会性逃避中 / 学科结构破坏者 / 每日许愿“今天别点名”
+
+> **「ACGN预警🔔！这里是技术宅萝莉的作战本阵！次元壁？我早就用信仰穿透啦！萌即是观察恒定点，中二就是我的重力中心！」**
+> ⚠️ 宇宙萌战前线指挥官 / 多宇宙界面连接器 / Moe系统β版本实验体
