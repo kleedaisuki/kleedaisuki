@@ -8,12 +8,7 @@ export type LocalizedDocumentId = "profile" | "uses" | "now";
 export interface LocalizedDocument {
   /** @brief 已渲染的 Astro Markdown 组件 / Rendered Astro Markdown component. */
   Content: Awaited<ReturnType<typeof render>>["Content"];
-  /** @brief GitHub 上对应内容文件的公开地址 / Public URL of the corresponding content file on GitHub. */
-  sourceHref: string;
 }
-
-/** @brief GitHub 仓库中文件浏览地址的公共前缀 / Shared prefix for GitHub repository file URLs. */
-const repositoryFileBase = "https://github.com/kleedaisuki/kleedaisuki/blob/main/";
 
 /**
  * @brief 查找内容集合中的必需条目 / Find a required entry in a content collection.
@@ -35,7 +30,7 @@ function requireEntry<T extends { id: string }>(entries: readonly T[], id: strin
  * @brief 加载并渲染指定语言的 Markdown 文档 / Load and render a Markdown document for a locale.
  * @param documentId 文档标识 / Document identifier.
  * @param locale 目标语言 / Target locale.
- * @return 文档组件及其真实源文件地址 / Document component and its real source-file URL.
+ * @return 可直接渲染的文档组件 / Renderable document component.
  */
 export async function getLocalizedDocument(
   documentId: LocalizedDocumentId,
@@ -44,28 +39,22 @@ export async function getLocalizedDocument(
   if (documentId === "profile" && locale === "zh") {
     const entry = requireEntry(await getCollection("profile"), "README");
     const { Content } = await render(entry);
-    return { Content, sourceHref: `${repositoryFileBase}README.md` };
+    return { Content };
   }
 
   if (documentId === "profile") {
     const entry = requireEntry(await getCollection("translations"), "profile");
     const { Content } = await render(entry);
-    return {
-      Content,
-      sourceHref: `${repositoryFileBase}src/content/translations/profile.md`,
-    };
+    return { Content };
   }
 
   if (locale === "en") {
     const entry = requireEntry(await getCollection("docs"), documentId);
     const { Content } = await render(entry);
-    return { Content, sourceHref: `${repositoryFileBase}docs/${documentId}.md` };
+    return { Content };
   }
 
   const entry = requireEntry(await getCollection("translations"), documentId);
   const { Content } = await render(entry);
-  return {
-    Content,
-    sourceHref: `${repositoryFileBase}src/content/translations/${documentId}.md`,
-  };
+  return { Content };
 }

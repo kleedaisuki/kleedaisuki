@@ -19,9 +19,7 @@ const copy = getMessages(locale);
 /** @brief 当前语言的首页元数据 (Home-page metadata for the active locale)。 */
 const metadata = copy.meta.home;
 /** @brief 当前语言的个人资料内容 (Localized profile content)。 */
-const { Content, sourceHref } = await getLocalizedDocument("profile", locale);
-/** @brief 内容源链接的本地化标签 (Localized label for the source link)。 */
-const sourceLabel = locale === "zh" ? "查看源文件" : "View source";
+const { Content } = await getLocalizedDocument("profile", locale);
 
 /** @brief 首页重点去向卡片 (Featured home-page destinations)。 */
 const destinations = [
@@ -53,10 +51,8 @@ const destinations = [
     <section class="home-hero" aria-labelledby="home-title">
       <div class="home-hero__copy">
         <p class="eyebrow">{copy.home.eyebrow}</p>
-        <h1 id="home-title">
-          <span class="home-hero__greeting">{copy.home.greeting}</span>
-          <span class="home-hero__headline">{copy.home.headline}</span>
-        </h1>
+        <p class="home-hero__greeting">{copy.home.greeting}</p>
+        <h1 id="home-title" class="home-hero__headline">{copy.home.headline}</h1>
         <p class="home-hero__lede">{copy.home.introduction}</p>
 
         <div class="home-hero__actions" aria-label={copy.home.exploreLabel}>
@@ -90,12 +86,7 @@ const destinations = [
     </section>
 
     <section class="home-profile" aria-label={copy.home.profileLabel}>
-      <MarkdownPage
-        Content={Content}
-        eyebrow={copy.home.profileLabel}
-        sourceHref={sourceHref}
-        sourceLabel={sourceLabel}
-      />
+      <MarkdownPage Content={Content} eyebrow={copy.home.profileLabel} />
     </section>
   </div>
 </BaseLayout>

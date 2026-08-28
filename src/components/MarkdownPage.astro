@@ -11,22 +11,15 @@ interface Props {
   eyebrow?: string;
   /** @brief 页面导语 / Page introductory copy. */
   lede?: string;
-  /** @brief 内容源文件链接 / Content source-file link. */
-  sourceHref?: string;
-  /** @brief 内容源链接的本地化标签 / Localized label for the content-source link. */
-  sourceLabel: string;
 }
 
-const { Content, eyebrow, lede, sourceHref, sourceLabel } = Astro.props;
+const { Content, eyebrow, lede } = Astro.props;
 ---
 
 <article class="markdown-page">
-	{(eyebrow || sourceHref) && (
+	{eyebrow && (
 		<div class="markdown-page__meta">
-			{eyebrow && <span class="eyebrow">{eyebrow}</span>}
-			{sourceHref && (
-				<a class="markdown-page__source" href={sourceHref}>{sourceLabel} <span aria-hidden="true">↗</span></a>
-			)}
+			<span class="eyebrow">{eyebrow}</span>
 		</div>
 	)}
 	{lede && <p class="markdown-page__lede">{lede}</p>}
@@ -46,18 +39,6 @@ const { Content, eyebrow, lede, sourceHref, sourceLabel } = Astro.props;
 		justify-content: space-between;
 		gap: 1rem;
 		margin-block-end: 1rem;
-	}
-
-	.markdown-page__source {
-		color: var(--text-soft);
-		font-size: 0.82rem;
-		font-weight: 650;
-		text-decoration: none;
-		transition: color 160ms ease;
-	}
-
-	.markdown-page__source:hover {
-		color: var(--coral-strong);
 	}
 
 	.markdown-page__lede {

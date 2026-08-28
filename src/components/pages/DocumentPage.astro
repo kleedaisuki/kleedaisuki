@@ -21,20 +21,12 @@ const metadata = copy.meta[documentId];
 /** @brief 当前文档的辅助文案 / Supporting copy for the active document. */
 const documentCopy = copy[documentId];
 /** @brief 已按语言解析的 Markdown 内容 / Markdown content resolved for the active locale. */
-const { Content, sourceHref } = await getLocalizedDocument(documentId, locale);
-/** @brief 内容源链接的本地化标签 / Localized label for the content-source link. */
-const sourceLabel = locale === "zh" ? "查看源文件" : "View source";
+const { Content } = await getLocalizedDocument(documentId, locale);
 ---
 
 <BaseLayout locale={locale} page={documentId} title={metadata.title} description={metadata.description}>
 	<div class="page-shell content-shell">
-		<MarkdownPage
-			Content={Content}
-			eyebrow={documentCopy.eyebrow}
-			lede={metadata.description}
-			sourceHref={sourceHref}
-			sourceLabel={sourceLabel}
-		/>
+		<MarkdownPage Content={Content} eyebrow={documentCopy.eyebrow} lede={metadata.description} />
 	</div>
 </BaseLayout>
 

@@ -40,7 +40,7 @@ const listLabel = `${t.meta.contact.title}: ${t.contact.intro}`;
 
 <style>
   .contact-page {
-    width: min(100%, 70rem);
+    width: min(100%, 58rem);
     margin-inline: auto;
     padding-block: clamp(2.75rem, 8vw, 7rem);
   }
@@ -62,7 +62,7 @@ const listLabel = `${t.meta.contact.title}: ${t.contact.intro}`;
   h1 {
     margin: 0;
     color: var(--heading);
-    font-size: clamp(2.5rem, 11vw, 4.75rem);
+    font-size: clamp(2.1rem, 6vw, 3.5rem);
     line-height: 1.06;
     letter-spacing: -0.04em;
     overflow-wrap: anywhere;
@@ -83,7 +83,7 @@ const listLabel = `${t.meta.contact.title}: ${t.contact.intro}`;
 
   .contact-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: clamp(0.75rem, 2vw, 1rem);
     min-width: 0;
     margin: 0;
@@ -99,9 +99,13 @@ const listLabel = `${t.meta.contact.title}: ${t.contact.intro}`;
     height: 100%;
   }
 
-  @media (max-width: 30rem) {
+  @media (max-width: 44rem) {
     .contact-page {
       padding-block-start: 2.5rem;
+    }
+
+    .contact-grid {
+      grid-template-columns: 1fr;
     }
   }
 </style>

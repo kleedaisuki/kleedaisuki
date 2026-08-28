@@ -7,7 +7,7 @@
 
 .home-shell {
   display: grid;
-  gap: clamp(3.5rem, 9vw, 7rem);
+  gap: clamp(3rem, 7vw, 5rem);
   min-width: 0;
   width: 100%;
 }
@@ -15,10 +15,14 @@
 /** @brief 首页主视觉的内容驱动网格 (Content-driven hero grid)。 */
 .home-hero {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
-  gap: clamp(2rem, 6vw, 5.5rem);
+  grid-template-columns: minmax(0, 1.15fr) minmax(17rem, 0.85fr);
+  gap: clamp(2rem, 5vw, 4rem);
   align-items: center;
-  padding-block: clamp(1rem, 5vw, 4.5rem);
+  padding: clamp(1.5rem, 4vw, 3rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-large);
+  background: var(--surface);
+  box-shadow: var(--shadow-small);
 }
 
 .home-hero__copy,
@@ -29,27 +33,23 @@
 }
 
 .home-hero h1 {
-  max-width: 15ch;
-  margin: 0.7rem 0 1.35rem;
-  font-size: clamp(3.4rem, 6.5vw, 6rem);
-  line-height: 0.98;
-  letter-spacing: -0.058em;
+  max-width: 16ch;
+  margin: 0.35rem 0 1.15rem;
+  font-size: clamp(2.6rem, 5vw, 4.25rem);
+  line-height: 1.04;
+  letter-spacing: -0.045em;
   overflow-wrap: anywhere;
 }
 
-.home-hero__greeting,
-.home-hero__headline {
-  display: block;
-}
-
 html[lang="zh-CN"] .home-hero h1 {
-  max-width: 9.5em;
-  letter-spacing: -0.045em;
+  max-width: 11em;
 }
 
-.home-hero__headline {
-  margin-block-start: 0.08em;
+.home-hero__greeting {
+  margin: 0;
   color: var(--coral-strong);
+  font-size: clamp(1rem, 1.4vw, 1.15rem);
+  font-weight: 750;
 }
 
 .home-hero__lede {
@@ -71,7 +71,7 @@ html[lang="zh-CN"] .home-hero h1 {
 /** @brief 重点去向的弹性卡片网格 (Flexible featured-destination card grid)。 */
 .destinations {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  grid-template-columns: 1fr;
   gap: 0.8rem;
   align-self: center;
 }
@@ -129,6 +129,7 @@ html[lang="zh-CN"] .home-hero h1 {
 
 .home-profile {
   width: min(62rem, 100%);
+  margin-inline: auto;
 }
 
 /** @brief 仅为精确指针提供位移动效 (Motion affordance for fine pointers only)。 */
@@ -142,6 +143,16 @@ html[lang="zh-CN"] .home-hero h1 {
 }
 
 /** @brief 小屏幕下提升按钮与卡片的触控可用性 (Improve controls and cards on small screens)。 */
+@media (max-width: 50rem) {
+  .home-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .destinations {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 34rem) {
   .home-shell {
     gap: 3.25rem;
@@ -149,13 +160,14 @@ html[lang="zh-CN"] .home-hero h1 {
 
   .home-hero {
     gap: 1.75rem;
-    padding-block: 0.35rem 1.25rem;
+    padding: 1.25rem;
+    border-radius: var(--radius-medium);
   }
 
   .home-hero h1 {
     max-width: none;
-    font-size: clamp(2.25rem, 10vw, 3.25rem);
-    line-height: 1.02;
+    font-size: clamp(2.15rem, 9vw, 2.9rem);
+    line-height: 1.08;
   }
 
   html[lang="zh-CN"] .home-hero h1 {
@@ -168,6 +180,10 @@ html[lang="zh-CN"] .home-hero h1 {
 
   .destination {
     min-height: 5.75rem;
+  }
+
+  .destinations {
+    grid-template-columns: 1fr;
   }
 }
 
