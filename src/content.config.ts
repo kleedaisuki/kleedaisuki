@@ -19,5 +19,14 @@ const docs = defineCollection({
   loader: glob({ base: "./docs", pattern: "*.md" }),
 });
 
+/**
+ * @brief 本地化 Markdown 侧车集合 / Localized Markdown sidecar collection.
+ * @note 侧车仅承载翻译，原始 README 与 docs 文档仍是各自语言的权威内容源。
+ *       Sidecars contain translations only; README and docs remain authoritative in their source language.
+ */
+const translations = defineCollection({
+  loader: glob({ base: "./src/content/translations", pattern: "*.md" }),
+});
+
 /** @brief Astro 内容集合注册表 / Astro content collection registry. */
-export const collections = { docs, profile };
+export const collections = { docs, profile, translations };

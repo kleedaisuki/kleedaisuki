@@ -1,7 +1,10 @@
 .prose {
+  min-width: 0;
   max-width: var(--reading-width);
   margin-inline: auto;
   font-size: 1.04rem;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 .prose > :first-child {
@@ -79,10 +82,14 @@
   background: var(--code-background);
   font-family: var(--font-mono);
   font-size: 0.88em;
+  overflow-wrap: break-word;
 }
 
 .prose pre {
+  max-width: 100%;
   overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
   padding: 1rem 1.1rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-medium);
@@ -95,6 +102,8 @@
   border: 0;
   color: var(--text);
   background: transparent;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .prose hr {
@@ -105,13 +114,18 @@
 }
 
 .prose img {
+  max-width: 100%;
+  height: auto;
   border-radius: var(--radius-medium);
   box-shadow: var(--shadow-small);
 }
 
 .prose table {
   display: block;
+  max-width: 100%;
   overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
   width: 100%;
   border-collapse: collapse;
 }
@@ -121,9 +135,38 @@
   padding: 0.65rem 0.8rem;
   border: 1px solid var(--border);
   text-align: left;
+  overflow-wrap: normal;
 }
 
 .prose th {
   color: var(--heading);
   background: var(--surface-soft);
+}
+
+.prose a {
+  overflow-wrap: anywhere;
+  text-underline-offset: 0.16em;
+}
+
+@media (max-width: 40rem) {
+  .prose {
+    font-size: 1rem;
+  }
+
+  .prose pre {
+    margin-inline: calc(var(--page-padding, 1rem) * -0.35);
+    padding: 0.9rem;
+    border-radius: var(--radius-small);
+  }
+
+  .prose th,
+  .prose td {
+    padding: 0.55rem 0.65rem;
+  }
+}
+
+@media (forced-colors: active) {
+  .prose h2::after {
+    background: CanvasText;
+  }
 }

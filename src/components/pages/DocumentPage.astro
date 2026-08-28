@@ -1,0 +1,47 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { getMessages } from "../../i18n";
+import { getLocalizedDocument, type LocalizedDocumentId } from "../../i18n/content";
+import type { Locale } from "../../i18n/types";
+import MarkdownPage from "../MarkdownPage.astro";
+
+/** @brief 本地化文档页属性 / Localized document-page properties. */
+interface Props {
+  /** @brief 页面语言 / Page locale. */
+  locale: Locale;
+  /** @brief Uses 或 Now 文档标识 / Uses or Now document identifier. */
+  documentId: Extract<LocalizedDocumentId, "uses" | "now">;
+}
+
+const { locale, documentId } = Astro.props;
+/** @brief 当前语言的强类型界面文案 / Strongly typed interface messages for the active locale. */
+const copy = getMessages(locale);
+/** @brief 当前文档的页面元数据 / Page metadata for the active document. */
+const metadata = copy.meta[documentId];
+/** @brief 当前文档的辅助文案 / Supporting copy for the active document. */
+const documentCopy = copy[documentId];
+/** @brief 已按语言解析的 Markdown 内容 / Markdown content resolved for the active locale. */
+const { Content, sourceHref } = await getLocalizedDocument(documentId, locale);
+/** @brief 内容源链接的本地化标签 / Localized label for the content-source link. */
+const sourceLabel = locale === "zh" ? "查看源文件" : "View source";
+---
+
+<BaseLayout locale={locale} page={documentId} title={metadata.title} description={metadata.description}>
+	<div class="page-shell content-shell">
+		<MarkdownPage
+			Content={Content}
+			eyebrow={documentCopy.eyebrow}
+			lede={metadata.description}
+			sourceHref={sourceHref}
+			sourceLabel={sourceLabel}
+		/>
+	</div>
+</BaseLayout>
+
+<style>
+	.content-shell {
+		width: min(var(--reading-width), 100%);
+		min-width: 0;
+		margin-inline: auto;
+	}
+</style>
