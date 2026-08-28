@@ -1,0 +1,60 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="页面未找到"
+  description="你访问的页面不存在，可能已经移动或更名。"
+  robots="noindex"
+>
+  <section class="not-found surface-card" aria-labelledby="not-found-title">
+    <p class="not-found__code" aria-hidden="true">404</p>
+    <h1 id="not-found-title">这颗页面星球走丢了</h1>
+    <p class="not-found__message">
+      你访问的地址不存在，或内容已经搬到了新的轨道。可以返回首页，或继续看看项目。
+    </p>
+    <nav class="not-found__actions" aria-label="页面未找到后的可选操作">
+      <a class="button" href="/">返回首页</a>
+      <a class="button button--ghost" href="/projects/">浏览项目</a>
+    </nav>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    display: grid;
+    justify-items: start;
+    max-width: 46rem;
+    margin: clamp(3rem, 12vw, 8rem) auto;
+    padding: clamp(1.5rem, 5vw, 3rem);
+  }
+
+  .not-found__code {
+    margin: 0 0 0.5rem;
+    color: var(--coral);
+    font-size: clamp(3.5rem, 14vw, 7rem);
+    font-weight: 700;
+    line-height: 0.9;
+    letter-spacing: -0.06em;
+  }
+
+  .not-found h1 {
+    margin: 0;
+    font-size: clamp(1.75rem, 5vw, 2.75rem);
+    line-height: 1.15;
+  }
+
+  .not-found__message {
+    max-width: 38rem;
+    margin: 1rem 0 0;
+    color: var(--text-soft);
+    line-height: 1.8;
+  }
+
+  .not-found__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+  }
+</style>
