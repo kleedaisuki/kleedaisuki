@@ -22,8 +22,10 @@
   --footer-background: rgba(255, 250, 242, 0.7);
   --glow-one: rgba(255, 190, 109, 0.42);
   --glow-two: rgba(255, 133, 105, 0.22);
-  --font-sans: "Atkinson Hyperlegible", "Noto Sans SC", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", "Cascadia Mono", monospace;
+  --font-sans:
+    "Atkinson Hyperlegible", "Noto Sans SC", ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
   --content-width: 1080px;
   --reading-width: 72ch;
   --radius-small: 12px;
@@ -73,6 +75,9 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 8rem;
+  overflow-x: hidden;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -89,6 +94,8 @@ body {
   line-height: 1.72;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  overflow-wrap: break-word;
+  -webkit-tap-highlight-color: rgba(230, 106, 63, 0.18);
 }
 
 body::before {
@@ -109,7 +116,16 @@ body::before {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+  padding-right: var(--safe-right);
+  padding-bottom: var(--safe-bottom);
+  padding-left: var(--safe-left);
+}
+
+@supports (min-height: 100svh) {
+  body,
+  .site-shell {
+    min-height: 100svh;
+  }
 }
 
 @supports (min-height: 100dvh) {
@@ -130,12 +146,24 @@ body::before {
   top: calc(0.85rem + var(--safe-top));
   margin-top: 1.15rem;
   padding: 0.82rem 1rem;
-  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  border: 1px solid var(--border);
   border-radius: var(--radius-large);
   background: var(--header-background);
   box-shadow: var(--shadow);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+}
+
+@supports (color: color-mix(in srgb, white, black)) {
+  .site-header {
+    border-color: color-mix(in srgb, var(--border) 72%, transparent);
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .site-header {
+    background: var(--surface-solid);
+  }
 }
 
 .site-main {
@@ -185,6 +213,11 @@ a {
   text-decoration-color: color-mix(in srgb, currentColor 42%, transparent);
   text-decoration-thickness: 0.08em;
   text-underline-offset: 0.16em;
+}
+
+button,
+a {
+  touch-action: manipulation;
 }
 
 a:focus-visible,
@@ -246,10 +279,16 @@ img {
 }
 
 .surface-card {
-  border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+  border: 1px solid var(--border);
   border-radius: var(--radius-medium);
   background: var(--surface);
   box-shadow: var(--shadow-small);
+}
+
+@supports (color: color-mix(in srgb, white, black)) {
+  .surface-card {
+    border-color: color-mix(in srgb, var(--border) 78%, transparent);
+  }
 }
 
 .button {
@@ -265,7 +304,7 @@ img {
   font: inherit;
   font-weight: 700;
   text-decoration: none;
-  box-shadow: 0 8px 18px color-mix(in srgb, var(--coral) 25%, transparent);
+  box-shadow: 0 8px 18px rgba(190, 69, 37, 0.2);
   transition:
     transform var(--motion-fast) var(--ease),
     box-shadow var(--motion-fast) var(--ease);
@@ -284,7 +323,7 @@ img {
 
   .button:hover {
     color: var(--on-accent);
-    box-shadow: 0 12px 24px color-mix(in srgb, var(--coral) 32%, transparent);
+    box-shadow: 0 12px 24px rgba(190, 69, 37, 0.26);
     transform: translateY(-2px);
   }
 
@@ -300,14 +339,33 @@ img {
   }
 
   .site-header {
-    position: static;
-    margin-top: 0.6rem;
+    top: calc(0.35rem + var(--safe-top));
+    margin-top: calc(0.35rem + var(--safe-top));
+    padding: 0.65rem 0.72rem;
     border-radius: var(--radius-medium);
   }
 
   .site-footer {
     justify-content: center;
     text-align: center;
+  }
+}
+
+@supports (color: color-mix(in srgb, white, black)) {
+  .button {
+    box-shadow: 0 8px 18px color-mix(in srgb, var(--coral) 25%, transparent);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .button:hover {
+      box-shadow: 0 12px 24px color-mix(in srgb, var(--coral) 32%, transparent);
+    }
+  }
+}
+
+@media (pointer: coarse) {
+  .button {
+    min-height: 44px;
   }
 }
 
