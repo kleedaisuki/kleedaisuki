@@ -1,36 +1,7 @@
 ---
-import { getCollection, render } from "astro:content";
-import MarkdownPage from "../components/MarkdownPage.astro";
-import BaseLayout from "../layouts/BaseLayout.astro";
+import DocumentPage from "@components/pages/DocumentPage.astro";
 
-/** @brief Now 文档条目 / Now document entry. */
-const nowEntry = (await getCollection("docs")).find((entry) => entry.id.toLowerCase() === "now");
-
-if (!nowEntry) {
-  throw new Error("docs/now.md is required to build the Now page.");
-}
-
-/** @brief 渲染后的 Now 文档 / Rendered Now document. */
-const { Content } = await render(nowEntry);
+/** @brief 中文 Now 页面静态路由适配器 (Static route adapter for the Chinese Now page)。 */
 ---
 
-<BaseLayout
-	title="Now"
-	description="What I am building, researching, and thinking about right now."
->
-	<div class="page-shell content-shell">
-		<MarkdownPage
-			Content={Content}
-			eyebrow="Current activity"
-			lede="A snapshot of the systems, research questions, and public spaces receiving my attention."
-			sourceHref="https://github.com/kleedaisuki/kleedaisuki/blob/main/docs/now.md"
-		/>
-	</div>
-</BaseLayout>
-
-<style>
-	.content-shell {
-		width: min(var(--reading-width), 100%);
-		margin-inline: auto;
-	}
-</style>
+<DocumentPage locale="zh" documentId="now" />

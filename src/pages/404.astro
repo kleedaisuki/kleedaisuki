@@ -1,21 +1,26 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
+
+/** @brief GitHub Pages 使用的双语未找到页面 (Bilingual not-found page for GitHub Pages)。 */
 ---
 
 <BaseLayout
-  title="页面未找到"
-  description="你访问的页面不存在，可能已经移动或更名。"
+  locale="zh"
+  title="页面未找到 / Page not found"
+  description="MoeSegFault：请求的页面不存在。The requested page does not exist."
   robots="noindex"
 >
   <section class="not-found surface-card" aria-labelledby="not-found-title">
+    <p class="not-found__brand">MoeSegFault</p>
     <p class="not-found__code" aria-hidden="true">404</p>
-    <h1 id="not-found-title">这颗页面星球走丢了</h1>
+    <h1 id="not-found-title">页面未找到 <span lang="en">/ Page not found</span></h1>
     <p class="not-found__message">
-      你访问的地址不存在，或内容已经搬到了新的轨道。可以返回首页，或继续看看项目。
+      请求的页面不存在或已经移动。<br />
+      <span lang="en">The requested page does not exist or has moved.</span>
     </p>
-    <nav class="not-found__actions" aria-label="页面未找到后的可选操作">
-      <a class="button" href="/">返回首页</a>
-      <a class="button button--ghost" href="/projects/">浏览项目</a>
+    <nav class="not-found__actions" aria-label="选择语言 / Choose a language">
+      <a class="button" href="/">简体中文首页</a>
+      <a class="button button--ghost" href="/en/" lang="en">English home</a>
     </nav>
   </section>
 </BaseLayout>
@@ -29,6 +34,14 @@ import BaseLayout from "@layouts/BaseLayout.astro";
     padding: clamp(1.5rem, 5vw, 3rem);
   }
 
+  .not-found__brand {
+    margin: 0 0 1rem;
+    color: var(--coral-strong);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+  }
+
   .not-found__code {
     margin: 0 0 0.5rem;
     color: var(--coral);
@@ -40,8 +53,13 @@ import BaseLayout from "@layouts/BaseLayout.astro";
 
   .not-found h1 {
     margin: 0;
-    font-size: clamp(1.75rem, 5vw, 2.75rem);
-    line-height: 1.15;
+    overflow-wrap: anywhere;
+    font-size: clamp(1.75rem, 7vw, 2.75rem);
+    line-height: 1.2;
+  }
+
+  .not-found h1 span {
+    color: var(--text-soft);
   }
 
   .not-found__message {

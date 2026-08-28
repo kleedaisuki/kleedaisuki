@@ -1,36 +1,7 @@
 ---
-import { getCollection, render } from "astro:content";
-import MarkdownPage from "../components/MarkdownPage.astro";
-import BaseLayout from "../layouts/BaseLayout.astro";
+import DocumentPage from "@components/pages/DocumentPage.astro";
 
-/** @brief Uses 文档条目 / Uses document entry. */
-const usesEntry = (await getCollection("docs")).find((entry) => entry.id.toLowerCase() === "uses");
-
-if (!usesEntry) {
-  throw new Error("docs/uses.md is required to build the Uses page.");
-}
-
-/** @brief 渲染后的 Uses 文档 / Rendered Uses document. */
-const { Content } = await render(usesEntry);
+/** @brief 中文 Uses 页面静态路由适配器 (Static route adapter for the Chinese Uses page)。 */
 ---
 
-<BaseLayout
-	title="Uses"
-	description="The hardware, software, languages, and systems behind my current workflow."
->
-	<div class="page-shell content-shell">
-		<MarkdownPage
-			Content={Content}
-			eyebrow="Toolkit · Workflow"
-			lede="A living inventory of the tools I rely on to build, research, write, and ship."
-			sourceHref="https://github.com/kleedaisuki/kleedaisuki/blob/main/docs/uses.md"
-		/>
-	</div>
-</BaseLayout>
-
-<style>
-	.content-shell {
-		width: min(var(--reading-width), 100%);
-		margin-inline: auto;
-	}
-</style>
+<DocumentPage locale="zh" documentId="uses" />
