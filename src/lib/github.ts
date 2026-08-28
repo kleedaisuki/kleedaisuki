@@ -26,6 +26,16 @@ export interface GitHubProject {
 }
 
 /**
+ * @brief 项目目录及其数据来源 (project directory and its data source)。
+ */
+export interface GitHubProjectDirectory {
+  /** @brief 可供页面渲染的项目 (projects ready for page rendering)。 */
+  projects: GitHubProject[];
+  /** @brief 数据来自 GitHub 或离线快照 (whether data came from GitHub or the offline snapshot)。 */
+  source: "github" | "fallback";
+}
+
+/**
  * @brief GitHub REST 仓库响应的最小数据形状 (minimal GitHub REST repository response shape)。
  */
 interface GitHubRepositoryResponse {
@@ -53,13 +63,13 @@ const REQUEST_TIMEOUT_MS = 10_000;
 /**
  * @brief 获取指定用户的公开自有项目 (fetch public owner repositories for a user)。
  * @param username GitHub 用户名 (GitHub username)。
- * @return 按最近更新时间降序排列、排除分叉与个人资料仓库的项目 (Projects sorted by update time descending, excluding forks and the profile repository)。
+ * @return 包含数据来源以及按更新时间排序的项目目录 (A project directory containing its source and update-sorted projects)。
  * @note GitHub 不可用、限流或响应异常时记录明确告警并返回静态后备数据，构建不会中断 (On GitHub outage, rate limiting, or malformed responses, logs a clear warning and returns static fallback data without interrupting the build)。
  * @example
  * const projects = await getGitHubProjects("kleedaisuki");
  * // 获取可直接传递给项目卡片的数据 / Gets data ready for project cards.
  */
-export async function getGitHubProjects(username = "kleedaisuki"): Promise<GitHubProject[]> {
+export async function getGitHubProjects(username = "kleedaisuki"): Promise<GitHubProjectDirectory> {
   /** @brief GitHub 仓库列表端点 (GitHub repository-list endpoint)。 */
   const endpoint = new URL(
     `/users/${encodeURIComponent(username)}/repos`,
@@ -130,13 +140,13 @@ export async function getGitHubProjects(username = "kleedaisuki"): Promise<GitHu
     console.info(
       `[projects] Loaded ${projects.length} public owner repositories from GitHub REST for ${username}.`,
     );
-    return projects;
+    return { projects, source: "github" };
   } catch (error) {
     /** @brief 便于构建日志阅读的错误文本 (build-log-friendly error text)。 */
     const reason = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
     console.warn(
       `[projects] WARNING: GitHub REST data unavailable for ${username}; continuing with ${PROJECT_FALLBACK.length} fallback projects. Reason: ${reason}`,
     );
-    return [...PROJECT_FALLBACK];
+    return { projects: [...PROJECT_FALLBACK], source: "fallback" };
   }
 }

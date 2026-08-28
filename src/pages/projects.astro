@@ -4,7 +4,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { getGitHubProjects } from "../lib/github";
 
 /** @brief 构建期获取并规范化的 GitHub 项目 (GitHub projects fetched and normalized at build time)。 */
-const projects = await getGitHubProjects("kleedaisuki");
+const { projects, source } = await getGitHubProjects("kleedaisuki");
 ---
 
 <BaseLayout
@@ -17,10 +17,18 @@ const projects = await getGitHubProjects("kleedaisuki");
     <p>
       从底层系统到并行计算，从机器学习实验到尚未命名的想法——这里收集了我最近更新的公开项目。
     </p>
-    <a href="https://github.com/kleedaisuki" target="_blank" rel="noreferrer">
+    <a href="https://github.com/kleedaisuki">
       在 GitHub 查看全部 <span aria-hidden="true">↗</span>
     </a>
   </section>
+
+  {
+    source === "fallback" && (
+      <p class="projects-status" role="status">
+        GitHub 暂时没有返回完整目录；当前展示离线项目快照，下一次构建会自动重新同步。
+      </p>
+    )
+  }
 
   <section class="projects-list" aria-label="GitHub 项目列表">
     {projects.map((project) => <ProjectCard project={project} />)}
@@ -94,5 +102,14 @@ const projects = await getGitHubProjects("kleedaisuki");
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 18.5rem), 1fr));
     gap: 1.15rem;
     margin-bottom: 2rem;
+  }
+
+  .projects-status {
+    margin: 0 0 1.25rem;
+    padding: 0.8rem 1rem;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-small);
+    color: var(--text-soft);
+    background: var(--surface-soft);
   }
 </style>
