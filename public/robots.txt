@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://me.moesegfault.dev/sitemap-index.xml
+
