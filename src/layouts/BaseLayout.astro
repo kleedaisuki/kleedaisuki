@@ -185,5 +185,31 @@ const structuredData = {
         <span>{copy.common.builtWith} · <a href={SITE.githubUrl}>GitHub</a></span>
       </footer>
     </div>
+    <script is:inline>
+      (() => {
+        /** @brief 请求减少动态效果的媒体查询 (Media query requesting reduced motion)。 */
+        const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+        if (reducedMotion.matches || typeof IntersectionObserver !== "function") return;
+
+        /** @brief 需要一次性显现的页面区块 (Page sections requiring a one-time reveal)。 */
+        const elements = [...document.querySelectorAll("[data-reveal]")];
+        if (elements.length === 0) return;
+
+        /** @brief 区块进入视口时触发的共享观察器 (Shared observer triggered when sections enter the viewport)。 */
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              entry.target.classList.add("is-revealed");
+              observer.unobserve(entry.target);
+            }
+          },
+          { rootMargin: "0px 0px -8%", threshold: 0.08 },
+        );
+
+        document.documentElement.classList.add("motion-ready");
+        for (const element of elements) observer.observe(element);
+      })();
+    </script>
   </body>
 </html>

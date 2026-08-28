@@ -181,6 +181,32 @@ test("theme toggle updates and persists the selected theme", async ({ page }) =>
   await expect(page.locator("html")).toHaveAttribute("data-theme", selectedTheme);
 });
 
+test("Uses and Now render as semantic showcases instead of article columns", async ({ page }) => {
+  await visitAndVerify(page, "/uses/", "zh-CN");
+  await expect(page.locator('.showcase[data-variant="toolkit"]')).toBeVisible();
+  await expect(page.locator(".showcase-section")).toHaveCount(10);
+  await expect(page.locator(".showcase-section h2")).toHaveCount(10);
+
+  await visitAndVerify(page, "/now/", "zh-CN");
+  await expect(page.locator('.showcase[data-variant="pulse"]')).toBeVisible();
+  await expect(page.locator(".showcase-section")).toHaveCount(4);
+  await expect(page.locator(".showcase-section h2")).toHaveCount(4);
+  await expect(page.locator(".showcase-item h3")).toHaveCount(6);
+});
+
+test("reduced-motion preference keeps every showcase section immediately visible", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await visitAndVerify(page, "/now/", "zh-CN");
+
+  /** @brief 减少动态效果时的全部显现区块 (All reveal regions with reduced motion enabled)。 */
+  const revealRegions = page.locator("[data-reveal]");
+  expect(await revealRegions.count()).toBeGreaterThan(1);
+  await expect(page.locator("html")).not.toHaveClass(/motion-ready/);
+  for (const region of await revealRegions.all()) await expect(region).toBeVisible();
+});
+
 test("bilingual 404 language switch returns to an existing localized home", async ({ page }) => {
   await page.goto("/404.html");
   await expect(page.locator(".language-switch")).toHaveAttribute("href", "/en/");

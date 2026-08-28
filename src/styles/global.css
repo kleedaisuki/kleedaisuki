@@ -33,7 +33,9 @@
   --radius-large: 28px;
   --motion-fast: 160ms;
   --motion-base: 260ms;
+  --motion-page: 220ms;
   --ease: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -96,6 +98,28 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow-wrap: break-word;
   -webkit-tap-highlight-color: rgba(230, 106, 63, 0.18);
+}
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-group(root) {
+  animation-duration: var(--motion-page);
+  animation-timing-function: var(--ease-out);
+}
+
+.motion-ready [data-reveal] {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity var(--motion-base) var(--ease-out) var(--reveal-delay, 0ms),
+    transform var(--motion-base) var(--ease-out) var(--reveal-delay, 0ms);
+}
+
+.motion-ready [data-reveal].is-revealed {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 body::before {
@@ -316,6 +340,11 @@ img {
   box-shadow: none;
 }
 
+.button:active,
+.destination:active {
+  transform: translateY(1px) scale(0.99);
+}
+
 @media (hover: hover) and (pointer: fine) {
   a:hover {
     color: var(--coral);
@@ -377,5 +406,17 @@ img {
   .skip-link,
   .button {
     transition: none;
+  }
+
+  .motion-ready [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0s;
   }
 }
