@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 /** @brief 本地预览服务器地址 (Local preview-server URL)。 */
-const baseURL = "http://127.0.0.1:4321";
+const baseURL = "http://127.0.0.1:4341";
 
 /**
  * @brief 微信 Android 风格的用户代理，仅用于近似回归 (WeChat-like Android user agent for approximate regression only)。
@@ -37,7 +37,7 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
   webServer: {
-    command: "pnpm build && pnpm preview --host 127.0.0.1 --port 4321",
+    command: "pnpm build && pnpm preview --host 127.0.0.1 --port 4341",
     env: { ASTRO_PREVIEW_BACKGROUND: "0" },
     url: baseURL,
     reuseExistingServer: !process.env.CI,
