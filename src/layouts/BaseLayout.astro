@@ -1,0 +1,129 @@
+---
+import Nav from "@components/Nav.astro";
+import "@styles/content.css";
+import "@styles/fonts.css";
+import "@styles/global.css";
+
+/** @brief 基础页面布局属性 (base page layout properties)。 */
+interface Props {
+  /** @brief 页面短标题 (short page title)。 */
+  title?: string;
+  /** @brief 兼容内容页命名的页面短标题 (short page-title alias for content pages)。 */
+  pageTitle?: string;
+  /** @brief 页面摘要 (page description)。 */
+  description?: string;
+  /** @brief 规范地址或站内路径 (canonical URL or site-relative path)。 */
+  canonical?: string;
+  /** @brief 分享图地址 (social sharing image URL)。 */
+  image?: string;
+  /** @brief 搜索引擎抓取指令 (crawler directives)。 */
+  robots?: string;
+  /** @brief body 的附加类名 (additional body class)。 */
+  class?: string;
+}
+
+/** @brief 站点正式名称 (canonical site name)。 */
+const siteName = "Klee · me";
+/** @brief 站点默认摘要 (default site description)。 */
+const defaultDescription = "Klee 的个人主页：近况、工具、项目与联系方式。";
+/** @brief 页面传入属性 (incoming page properties)。 */
+const {
+  title,
+  pageTitle,
+  description = defaultDescription,
+  canonical,
+  image,
+  robots,
+  class: bodyClass,
+} = Astro.props as Props;
+/** @brief 页面最终短标题 (resolved short page title)。 */
+const resolvedTitle = title ?? pageTitle;
+/** @brief 浏览器与分享平台使用的完整标题 (full document and social title)。 */
+const documentTitle = resolvedTitle ? `${resolvedTitle} — ${siteName}` : siteName;
+/** @brief 站点绝对地址基准 (absolute site URL base)。 */
+const siteUrl = Astro.site ?? new URL("https://me.moesegfault.dev");
+/** @brief 当前页面规范地址 (canonical URL for the current page)。 */
+const canonicalUrl = new URL(canonical ?? Astro.url.pathname, siteUrl).toString();
+/** @brief 分享图绝对地址 (absolute social image URL)。 */
+const socialImage = image ? new URL(image, siteUrl).toString() : undefined;
+/** @brief 当前年份 (current year)。 */
+const currentYear = new Date().getFullYear();
+/** @brief 个人主页结构化数据 (Person structured data)。 */
+const personStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Klee",
+  url: new URL("/", siteUrl).toString(),
+  sameAs: ["https://github.com/kleedaisuki"],
+};
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#fff6ea" />
+    <script is:inline>
+      (() => {
+        /** @brief 主题本地存储键 (local-storage key for the theme)。 */
+        const storageKey = "site-theme";
+        /** @brief 文档根元素 (document root element)。 */
+        const root = document.documentElement;
+        /** @brief 已保存主题，存储受限时为空 (saved theme, or null when storage is unavailable)。 */
+        let savedTheme = null;
+        try {
+          savedTheme = localStorage.getItem(storageKey);
+        } catch {
+          // 存储不可用时自然回退到系统偏好 (Naturally use system preference when storage is unavailable).
+        }
+        /** @brief 首次绘制采用的主题 (theme used for the first paint)。 */
+        const theme =
+          savedTheme === "light" || savedTheme === "dark"
+            ? savedTheme
+            : matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+        root.dataset.theme = theme;
+        root.style.colorScheme = theme;
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta name="description" content={description} />
+    {robots && <meta name="robots" content={robots} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:title" content={documentTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    {socialImage && <meta property="og:image" content={socialImage} />}
+    <meta name="twitter:card" content={socialImage ? "summary_large_image" : "summary"} />
+    <meta name="twitter:title" content={documentTitle} />
+    <meta name="twitter:description" content={description} />
+    {socialImage && <meta name="twitter:image" content={socialImage} />}
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(personStructuredData)} />
+    <title>{documentTitle}</title>
+  </head>
+  <body class={bodyClass}>
+    <a class="skip-link" href="#main-content">跳至正文</a>
+    <div class="site-shell">
+      <header class="site-header container">
+        <Nav />
+      </header>
+      <main id="main-content" class="site-main container" tabindex="-1">
+        <slot />
+      </main>
+      <footer class="site-footer container">
+        <span>© 2024–{currentYear} Klee ✦</span>
+        <span>Built with Astro · <a href="https://github.com/kleedaisuki">GitHub</a></span>
+      </footer>
+    </div>
+  </body>
+</html>

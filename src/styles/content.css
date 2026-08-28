@@ -1,0 +1,129 @@
+.prose {
+  max-width: var(--reading-width);
+  margin-inline: auto;
+  font-size: 1.04rem;
+}
+
+.prose > :first-child {
+  margin-top: 0;
+}
+
+.prose > * + * {
+  margin-top: 1.15rem;
+}
+
+.prose h1 {
+  margin-bottom: 1.4rem;
+}
+
+.prose h2,
+.prose h3 {
+  margin-top: 2.4rem;
+  margin-bottom: 0.8rem;
+  scroll-margin-top: 8rem;
+}
+
+.prose h2 {
+  position: relative;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.prose h2::after {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: min(8rem, 34%);
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gold), var(--coral));
+  content: "";
+}
+
+.prose p {
+  margin-bottom: 0;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.4rem;
+}
+
+.prose li + li {
+  margin-top: 0.4rem;
+}
+
+.prose li::marker {
+  color: var(--coral);
+  font-weight: 700;
+}
+
+.prose blockquote {
+  margin-inline: 0;
+  padding: 0.9rem 1.1rem;
+  border-left: 4px solid var(--coral);
+  border-radius: 0 var(--radius-small) var(--radius-small) 0;
+  color: var(--text-soft);
+  background: var(--coral-soft);
+}
+
+.prose blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.prose code {
+  padding: 0.12em 0.35em;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--coral-strong);
+  background: var(--code-background);
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+}
+
+.prose pre {
+  overflow-x: auto;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-medium);
+  background: var(--surface-solid);
+  box-shadow: var(--shadow-small);
+}
+
+.prose pre code {
+  padding: 0;
+  border: 0;
+  color: var(--text);
+  background: transparent;
+}
+
+.prose hr {
+  height: 1px;
+  margin-block: 2.4rem;
+  border: 0;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+.prose img {
+  border-radius: var(--radius-medium);
+  box-shadow: var(--shadow-small);
+}
+
+.prose table {
+  display: block;
+  overflow-x: auto;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.prose th,
+.prose td {
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+
+.prose th {
+  color: var(--heading);
+  background: var(--surface-soft);
+}

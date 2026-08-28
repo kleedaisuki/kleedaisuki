@@ -1,0 +1,68 @@
+---
+import type { AstroComponentFactory } from "astro/runtime/server/index.js";
+
+/**
+ * @brief Markdown 页面组件属性 / Markdown page component properties.
+ */
+interface Props {
+  /** @brief 已渲染的 Markdown 内容组件 / Rendered Markdown content component. */
+  Content: AstroComponentFactory;
+  /** @brief 页面内容类别 / Page content category. */
+  eyebrow?: string;
+  /** @brief 页面导语 / Page introductory copy. */
+  lede?: string;
+  /** @brief 内容源文件链接 / Content source-file link. */
+  sourceHref?: string;
+}
+
+const { Content, eyebrow, lede, sourceHref } = Astro.props;
+---
+
+<article class="markdown-page">
+	{(eyebrow || sourceHref) && (
+		<div class="markdown-page__meta" aria-label="Content metadata">
+			{eyebrow && <span class="eyebrow">{eyebrow}</span>}
+			{sourceHref && (
+				<a class="markdown-page__source" href={sourceHref}>View source <span aria-hidden="true">↗</span></a>
+			)}
+		</div>
+	)}
+	{lede && <p class="markdown-page__lede">{lede}</p>}
+	<div class="prose">
+		<Content />
+	</div>
+</article>
+
+<style>
+	.markdown-page {
+		min-width: 0;
+	}
+
+	.markdown-page__meta {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-block-end: 1rem;
+	}
+
+	.markdown-page__source {
+		color: var(--text-soft);
+		font-size: 0.82rem;
+		font-weight: 650;
+		text-decoration: none;
+		transition: color 160ms ease;
+	}
+
+	.markdown-page__source:hover {
+		color: var(--coral-strong);
+	}
+
+	.markdown-page__lede {
+		max-width: 68ch;
+		margin: 0 0 clamp(1.75rem, 5vw, 3rem);
+		color: var(--text-soft);
+		font-size: clamp(1rem, 2vw, 1.15rem);
+		line-height: 1.75;
+	}
+</style>

@@ -1,0 +1,289 @@
+---
+/** @brief 导航链接的数据结构 (navigation link data structure)。 */
+interface NavigationLink {
+  /** @brief 链接地址 (link destination)。 */
+  href: string;
+  /** @brief 链接标签 (link label)。 */
+  label: string;
+}
+
+/** @brief 站点一级导航链接 (primary site navigation links)。 */
+const links: NavigationLink[] = [
+  { href: "/", label: "Home" },
+  { href: "/uses/", label: "Uses" },
+  { href: "/now/", label: "Now" },
+  { href: "/projects/", label: "Projects" },
+  { href: "/contact/", label: "Contact" },
+];
+
+/** @brief 去除尾斜杠后的当前路径 (current path without a trailing slash)。 */
+const currentPath = Astro.url.pathname.replace(/\/+$/, "") || "/";
+
+/**
+ * @brief 判断链接是否指向当前栏目 (determine whether a link represents the current section)。
+ * @param href 待判断的目标路径 (destination path to inspect)。
+ * @return 链接是否处于当前栏目 (whether the link is in the current section)。
+ */
+const isCurrent = (href: string): boolean => {
+  const path = href.replace(/\/+$/, "") || "/";
+  return path === "/"
+    ? currentPath === path
+    : currentPath === path || currentPath.startsWith(`${path}/`);
+};
+---
+
+<div class="nav-shell">
+  <a class="site-brand" href="/" aria-label="Klee 个人主页">
+    <span class="site-brand__mark" aria-hidden="true">K</span>
+    <span class="site-brand__text">Klee</span>
+  </a>
+
+  <nav class="site-nav" aria-label="主导航">
+    {
+      links.map(({ href, label }) => (
+        <a href={href} aria-current={isCurrent(href) ? "page" : undefined}>
+          {label}
+        </a>
+      ))
+    }
+  </nav>
+
+  <button
+    class="theme-toggle"
+    type="button"
+    data-theme-toggle
+    aria-label="切换明暗主题"
+    aria-pressed="false"
+    title="切换至夜间主题"
+  >
+    <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18">
+      <path
+        data-theme-icon="moon"
+        d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7Z"
+      ></path>
+      <path
+        data-theme-icon="sun"
+        d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.4-6.4L17 7M7 17l-1.4 1.4m12.8 0L17 17M7 7 5.6 5.6M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"
+      ></path>
+    </svg>
+    <span class="theme-toggle__label" data-theme-label>日间</span>
+    <span class="visually-hidden" aria-live="polite" data-theme-status></span>
+  </button>
+</div>
+
+<script is:inline>
+  (() => {
+    /** @brief 主题本地存储键 (local-storage key for the theme)。 */
+    const storageKey = "site-theme";
+    /** @brief 文档根元素 (document root element)。 */
+    const root = document.documentElement;
+    /** @brief 主题按钮 (theme toggle button)。 */
+    const toggle = document.querySelector("[data-theme-toggle]");
+
+    if (!(toggle instanceof HTMLButtonElement)) return;
+
+    /** @brief 按钮可见标签 (visible toggle label)。 */
+    const label = toggle.querySelector("[data-theme-label]");
+    /** @brief 辅助技术播报区域 (assistive-technology live region)。 */
+    const status = toggle.querySelector("[data-theme-status]");
+    /** @brief 浏览器主题颜色元数据 (browser theme-color metadata)。 */
+    const themeColor = document.querySelector('meta[name="theme-color"]');
+
+    /**
+     * @brief 应用主题并同步控件状态 (apply a theme and synchronize control state)。
+     * @param theme 要应用的主题 (theme to apply)。
+     * @param announce 是否播报变化 (whether to announce the change)。
+     * @return 无返回值 (no return value)。
+     */
+    const applyTheme = (theme, announce = false) => {
+      /** @brief 当前主题是否为夜间 (whether the active theme is dark)。 */
+      const dark = theme === "dark";
+      root.dataset.theme = dark ? "dark" : "light";
+      root.style.colorScheme = dark ? "dark" : "light";
+      toggle.setAttribute("aria-pressed", String(dark));
+      toggle.title = dark ? "切换至日间主题" : "切换至夜间主题";
+
+      if (label) label.textContent = dark ? "夜间" : "日间";
+      if (status && announce) status.textContent = dark ? "已切换至夜间主题" : "已切换至日间主题";
+
+      if (themeColor instanceof HTMLMetaElement) {
+        themeColor.content = dark ? "#21130f" : "#fff6ea";
+      }
+    };
+
+    applyTheme(root.dataset.theme === "dark" ? "dark" : "light");
+
+    toggle.addEventListener("click", () => {
+      /** @brief 用户选择的下一主题 (next theme selected by the user)。 */
+      const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
+      try {
+        localStorage.setItem(storageKey, nextTheme);
+      } catch {
+        // 受限存储环境仍允许本页切换 (Keep in-page switching when storage is unavailable).
+      }
+      applyTheme(nextTheme, true);
+    });
+  })();
+</script>
+
+<style>
+  .nav-shell {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .site-brand {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--heading);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .site-brand__mark {
+    display: grid;
+    width: 2.25rem;
+    aspect-ratio: 1;
+    place-items: center;
+    border-radius: 11px;
+    color: #fffaf2;
+    background: linear-gradient(145deg, var(--coral), var(--coral-strong));
+    box-shadow: 0 6px 14px color-mix(in srgb, var(--coral) 30%, transparent);
+  }
+
+  .site-brand__text {
+    font-size: 1.08rem;
+  }
+
+  .site-nav {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    gap: 0.2rem;
+  }
+
+  .site-nav a,
+  .theme-toggle {
+    display: inline-flex;
+    min-height: 2.35rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem 0.72rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    color: var(--text-soft);
+    background: transparent;
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      color var(--motion-fast) var(--ease),
+      background var(--motion-fast) var(--ease),
+      transform var(--motion-fast) var(--ease);
+  }
+
+  .site-nav a[aria-current="page"] {
+    border-color: color-mix(in srgb, var(--border) 78%, transparent);
+    color: var(--coral-strong);
+    background: var(--surface-solid);
+    box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--gold) 70%, transparent);
+  }
+
+  .theme-toggle {
+    flex: none;
+    gap: 0.4rem;
+    border-color: color-mix(in srgb, var(--border) 70%, transparent);
+    background: var(--surface-solid);
+  }
+
+  .theme-toggle svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+  }
+
+  [data-theme-icon="sun"] {
+    display: none;
+  }
+
+  :global(:root[data-theme="dark"]) [data-theme-icon="sun"] {
+    display: initial;
+  }
+
+  :global(:root[data-theme="dark"]) [data-theme-icon="moon"] {
+    display: none;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    border: 0;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .site-brand:hover {
+      color: var(--coral-strong);
+    }
+
+    .site-nav a:hover,
+    .theme-toggle:hover {
+      color: var(--coral-strong);
+      background: var(--coral-soft);
+      transform: translateY(-1px);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .nav-shell {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      min-width: 0;
+    }
+
+    .site-nav {
+      display: grid;
+      grid-column: 1 / -1;
+      grid-row: 2;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      min-width: 0;
+      justify-content: start;
+      padding-top: 0.45rem;
+      border-top: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+    }
+
+    .site-nav a {
+      padding-inline: 0.65rem;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .theme-toggle__label {
+      display: none;
+    }
+
+    .theme-toggle {
+      width: 2.35rem;
+      padding-inline: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-nav a,
+    .theme-toggle {
+      transition: none;
+    }
+  }
+</style>
