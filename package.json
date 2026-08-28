@@ -9,6 +9,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "verify:discovery": "node scripts/verify-discovery.mjs dist",
     "lint": "biome lint .",
     "format": "biome format --write .",
     "format:check": "biome format ."

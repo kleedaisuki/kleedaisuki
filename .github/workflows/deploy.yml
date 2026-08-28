@@ -25,6 +25,10 @@ jobs:
         uses: withastro/action@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify discovery output and immutable profile source
+        run: |
+          pnpm verify:discovery
+          git diff --exit-code README.md
       - name: Verify types and formatting
         run: pnpm check && pnpm lint && pnpm format:check
       - name: Smoke-test Pages output
