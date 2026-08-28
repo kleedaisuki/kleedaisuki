@@ -37,12 +37,18 @@
   overflow-wrap: anywhere;
 }
 
+.home-hero__greeting,
+.home-hero__headline {
+  display: block;
+}
+
 html[lang="zh-CN"] .home-hero h1 {
   max-width: 9.5em;
   letter-spacing: -0.045em;
 }
 
 .home-hero__headline {
+  margin-block-start: 0.08em;
   color: var(--coral-strong);
 }
 
@@ -148,7 +154,7 @@ html[lang="zh-CN"] .home-hero h1 {
 
   .home-hero h1 {
     max-width: none;
-    font-size: clamp(2.35rem, 12vw, 3.6rem);
+    font-size: clamp(2.25rem, 10vw, 3.25rem);
     line-height: 1.02;
   }
 
