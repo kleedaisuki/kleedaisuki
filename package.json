@@ -8,6 +8,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "test:e2e": "playwright test",
     "check": "astro check",
     "verify:discovery": "node scripts/verify-discovery.mjs dist",
     "lint": "biome lint .",
@@ -22,6 +23,7 @@
     "typescript": "^6.0.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.11"
+    "@biomejs/biome": "^2.5.11",
+    "@playwright/test": "^1.62.1"
   }
 }
