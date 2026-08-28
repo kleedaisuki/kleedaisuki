@@ -14,15 +14,88 @@
 
 /** @brief 首页主视觉的内容驱动网格 (Content-driven hero grid)。 */
 .home-hero {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(17rem, 0.85fr);
   gap: clamp(2rem, 5vw, 4rem);
   align-items: center;
+  overflow: hidden;
   padding: clamp(1.5rem, 4vw, 3rem);
   border: 1px solid var(--border);
   border-radius: var(--radius-large);
   background: var(--surface);
   box-shadow: var(--shadow-small);
+  isolation: isolate;
+}
+
+.home-hero::before {
+  position: absolute;
+  z-index: -1;
+  right: -4rem;
+  bottom: -7rem;
+  width: 19rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--glow-one), transparent 68%);
+  content: "";
+  pointer-events: none;
+}
+
+.home-hero__constellation {
+  position: absolute;
+  z-index: -1;
+  top: 1.5rem;
+  right: clamp(1rem, 4vw, 3rem);
+  width: 7rem;
+  height: 4rem;
+  color: var(--coral);
+  opacity: 0.34;
+  pointer-events: none;
+}
+
+.home-hero__constellation::before,
+.home-hero__constellation::after {
+  position: absolute;
+  height: 1px;
+  background: currentColor;
+  content: "";
+  transform-origin: left center;
+}
+
+.home-hero__constellation::before {
+  top: 1rem;
+  left: 1rem;
+  width: 4.8rem;
+  transform: rotate(18deg);
+}
+
+.home-hero__constellation::after {
+  top: 2.4rem;
+  left: 2.2rem;
+  width: 3.5rem;
+  transform: rotate(-22deg);
+}
+
+.home-hero__constellation span {
+  position: absolute;
+  width: 0.45rem;
+  aspect-ratio: 1;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  background: var(--surface-solid);
+}
+
+.home-hero__constellation span:nth-child(1) {
+  top: 0.7rem;
+  left: 0.65rem;
+}
+.home-hero__constellation span:nth-child(2) {
+  top: 2rem;
+  left: 5.6rem;
+}
+.home-hero__constellation span:nth-child(3) {
+  top: 3.05rem;
+  left: 2rem;
 }
 
 .home-hero__copy,
@@ -125,11 +198,53 @@ html[lang="zh-CN"] .home-hero h1 {
 
 .destination__arrow {
   font-size: 1.05rem;
+  transition: transform var(--motion-fast) var(--ease);
 }
 
 .home-profile {
   width: min(62rem, 100%);
   margin-inline: auto;
+}
+
+.home-profile .prose {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1rem;
+  max-width: none;
+}
+
+.home-profile .prose > blockquote {
+  display: flex;
+  grid-column: span 6;
+  min-width: 0;
+  min-height: 10rem;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 0;
+  padding: clamp(1rem, 3vw, 1.35rem);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--coral);
+  border-radius: var(--radius-medium);
+  background: var(--coral-soft);
+}
+
+.home-profile .prose > blockquote:nth-child(3),
+.home-profile .prose > blockquote:nth-child(6) {
+  grid-column: 1 / -1;
+}
+
+.home-profile .prose > blockquote:first-child,
+.home-profile .prose > blockquote:last-child {
+  background: linear-gradient(135deg, var(--coral-soft), var(--surface-solid));
+}
+
+.home-profile .prose > blockquote p:first-child {
+  color: var(--heading);
+  font-weight: 750;
+}
+
+.home-profile .prose > blockquote p:last-child {
+  font-size: 0.9rem;
 }
 
 /** @brief 仅为精确指针提供位移动效 (Motion affordance for fine pointers only)。 */
@@ -139,6 +254,10 @@ html[lang="zh-CN"] .home-hero h1 {
     border-color: var(--coral);
     box-shadow: 0 1rem 2.5rem color-mix(in srgb, var(--coral) 13%, transparent);
     transform: translateY(-3px);
+  }
+
+  .destination:hover .destination__arrow {
+    transform: translate(3px, -1px);
   }
 }
 
@@ -150,6 +269,11 @@ html[lang="zh-CN"] .home-hero h1 {
 
   .destinations {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-profile .prose > blockquote,
+  .home-profile .prose > blockquote:nth-child(n) {
+    grid-column: span 6;
   }
 }
 
@@ -185,6 +309,16 @@ html[lang="zh-CN"] .home-hero h1 {
   .destinations {
     grid-template-columns: 1fr;
   }
+
+  .home-profile .prose {
+    grid-template-columns: 1fr;
+  }
+
+  .home-profile .prose > blockquote,
+  .home-profile .prose > blockquote:nth-child(n) {
+    grid-column: auto;
+    min-height: 0;
+  }
 }
 
 /** @brief 短横屏减少非必要垂直留白 (Reduce incidental vertical spacing on short landscape screens)。 */
@@ -197,6 +331,10 @@ html[lang="zh-CN"] .home-hero h1 {
 /** @brief 尊重减少动态效果偏好 (Honor reduced-motion preferences)。 */
 @media (prefers-reduced-motion: reduce) {
   .destination {
+    transition: none;
+  }
+
+  .destination__arrow {
     transition: none;
   }
 }

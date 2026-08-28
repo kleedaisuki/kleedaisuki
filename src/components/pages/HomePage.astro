@@ -48,7 +48,10 @@ const destinations = [
   class="home-page"
 >
   <div class="home-shell">
-    <section class="home-hero" aria-labelledby="home-title">
+    <section class="home-hero" aria-labelledby="home-title" data-reveal>
+      <div class="home-hero__constellation" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
       <div class="home-hero__copy">
         <p class="eyebrow">{copy.home.eyebrow}</p>
         <p class="home-hero__greeting">{copy.home.greeting}</p>
@@ -72,6 +75,8 @@ const destinations = [
               class:list={["destination", destination.modifier]}
               href={destination.href}
               aria-label={`${destination.title} — ${destination.description}`}
+              data-reveal
+              style={`--reveal-delay: ${80 + Number(destination.index) * 45}ms`}
             >
               <span class="destination__index" aria-hidden="true">{destination.index}</span>
               <span class="destination__body">
@@ -85,7 +90,7 @@ const destinations = [
       </nav>
     </section>
 
-    <section class="home-profile" aria-label={copy.home.profileLabel}>
+    <section class="home-profile" aria-label={copy.home.profileLabel} data-reveal>
       <MarkdownPage Content={Content} eyebrow={copy.home.profileLabel} />
     </section>
   </div>
