@@ -47,6 +47,13 @@ export interface Messages {
     greeting: string;
     headline: string;
     introduction: string;
+    githubProfileLabel: string;
+    githubLive: string;
+    githubSnapshot: string;
+    repositories: string;
+    followers: string;
+    following: string;
+    joinedGitHub: string;
     profileLabel: string;
     exploreLabel: string;
     blogTitle: string;

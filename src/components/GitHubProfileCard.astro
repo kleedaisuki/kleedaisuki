@@ -1,0 +1,95 @@
+---
+import type { GitHubProfileSnapshot } from "../lib/github-profile";
+import type { Locale } from "../i18n";
+import type { Messages } from "../i18n/types";
+
+/** @brief GitHub 公开资料卡片属性 (Public GitHub profile-card properties)。 */
+interface Props {
+  /** @brief 构建期取得的资料快照 (Profile snapshot resolved at build time)。 */
+  snapshot: GitHubProfileSnapshot;
+  /** @brief 当前页面语言 (Active page locale)。 */
+  locale: Locale;
+  /** @brief 当前语言的首页文案 (Home-page copy for the active locale)。 */
+  copy: Messages["home"];
+}
+
+/** @brief 当前 GitHub 资料快照 (Active GitHub profile snapshot)。 */
+const { snapshot, locale, copy } = Astro.props;
+/** @brief 规范化后的公开资料 (Normalized public profile)。 */
+const { profile } = snapshot;
+/** @brief 与页面语言一致的加入年份文本 (Localized GitHub join-year text)。 */
+const joinedYear = new Intl.DateTimeFormat(locale === "zh" ? "zh-CN" : "en", {
+  year: "numeric",
+}).format(new Date(profile.createdAt));
+/** @brief 适合紧凑展示的个人主页地址 (Compact website address for display)。 */
+const displayBlog = profile.blog?.replace(/^https?:\/\//, "").replace(/\/$/, "");
+/** @brief 资料简介在当前页面中的语言标记 (Language annotation for the profile biography)。 */
+const bioLanguage =
+  locale === "zh" && profile.bio && !/\p{Script=Han}/u.test(profile.bio) ? "en" : undefined;
+/** @brief 可为空的资料元数据条目 (Optional profile metadata entries)。 */
+const metadata = [
+  profile.company ? { glyph: "⌘", text: profile.company } : undefined,
+  profile.location ? { glyph: "⌖", text: profile.location } : undefined,
+].filter((item): item is { glyph: string; text: string } => Boolean(item));
+/** @brief GitHub 公开统计数据 (Public GitHub statistics)。 */
+const statistics = [
+  { value: profile.publicRepositories, label: copy.repositories },
+  { value: profile.followers, label: copy.followers },
+  { value: profile.following, label: copy.following },
+] as const;
+---
+
+<aside class="github-profile" aria-labelledby="github-profile-name" data-reveal>
+  <header class="github-profile__header">
+    <img
+      class="github-profile__avatar"
+      src={profile.avatarUrl}
+      width="96"
+      height="96"
+      alt={
+        locale === "zh"
+          ? `${profile.name ?? profile.login} 的 GitHub 头像`
+          : `${profile.name ?? profile.login}'s GitHub avatar`
+      }
+      loading="eager"
+      fetchpriority="high"
+    />
+    <div class="github-profile__identity">
+      <span class="github-profile__source">
+        <span aria-hidden="true"></span>
+        {snapshot.source === "github" ? copy.githubLive : copy.githubSnapshot}
+      </span>
+      <h2 id="github-profile-name">{profile.name ?? profile.login}</h2>
+      <a href={profile.profileUrl}>@{profile.login}<span aria-hidden="true"> ↗</span></a>
+    </div>
+  </header>
+
+  {profile.bio && <p class="github-profile__bio" lang={bioLanguage}>{profile.bio}</p>}
+
+  <dl class="github-profile__stats" aria-label={copy.githubProfileLabel}>
+    {
+      statistics.map((statistic) => (
+        <div>
+          <dt>{statistic.label}</dt>
+          <dd>{statistic.value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+
+  <footer class="github-profile__metadata">
+    <ul>
+      {
+        metadata.map((item) => (
+          <li><span aria-hidden="true">{item.glyph}</span>{item.text}</li>
+        ))
+      }
+      <li><span aria-hidden="true">◷</span>{copy.joinedGitHub} {joinedYear}</li>
+    </ul>
+    {
+      profile.blog && displayBlog && (
+        <a href={profile.blog}>{displayBlog}<span aria-hidden="true"> ↗</span></a>
+      )
+    }
+  </footer>
+</aside>

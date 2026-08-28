@@ -124,6 +124,24 @@ test("primary navigation and controls remain touch-reachable", async ({ page }) 
   await expectTouchTarget(page.locator("button[data-theme-toggle]"));
 });
 
+test("home renders the build-synced public GitHub profile", async ({ page }) => {
+  for (const path of ["/", "/en/"] as const) {
+    await page.goto(path, { waitUntil: "domcontentloaded" });
+    /** @brief 构建期写入首页的 GitHub 资料卡 (GitHub profile card written into the home page at build time)。 */
+    const profile = page.locator(".github-profile");
+    await expect(profile).toBeVisible();
+    await expect(profile.locator("img.github-profile__avatar")).toHaveAttribute(
+      "src",
+      /avatars\.githubusercontent\.com/,
+    );
+    await expect(profile.getByRole("link", { name: /@kleedaisuki/ })).toHaveAttribute(
+      "href",
+      "https://github.com/kleedaisuki",
+    );
+    await expect(profile.locator(".github-profile__stats > div")).toHaveCount(3);
+  }
+});
+
 for (const viewport of homeViewports) {
   test(`home has a content-sized layout at ${viewport.name}`, async ({ page }) => {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });

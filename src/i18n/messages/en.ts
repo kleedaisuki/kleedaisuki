@@ -53,6 +53,13 @@ export const en = {
     headline: "I turn sparks of thought into worlds that run.",
     introduction:
       "Exploring the edges of software systems, parallel computing, and machine learning—measuring performance while asking how technology should live with people.",
+    githubProfileLabel: "Public GitHub profile",
+    githubLive: "Synced at build time",
+    githubSnapshot: "Recent snapshot",
+    repositories: "Public repos",
+    followers: "Followers",
+    following: "Following",
+    joinedGitHub: "Joined GitHub",
     profileLabel: "Identity fragments",
     exploreLabel: "Choose a path",
     blogTitle: "Blog",

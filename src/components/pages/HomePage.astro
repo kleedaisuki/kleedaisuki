@@ -4,6 +4,8 @@ import "@styles/home.css";
 import { SITE } from "../../config/site";
 import { getLocalizedDocument } from "../../i18n/content";
 import { getMessages, pagePath, type Locale } from "../../i18n";
+import { getProfileSnapshot } from "../../lib/profile-catalog";
+import GitHubProfileCard from "../GitHubProfileCard.astro";
 import MarkdownPage from "../MarkdownPage.astro";
 
 /** @brief 本地化首页属性 (Localized home-page properties)。 */
@@ -20,6 +22,8 @@ const copy = getMessages(locale);
 const metadata = copy.meta.home;
 /** @brief 当前语言的个人资料内容 (Localized profile content)。 */
 const { Content } = await getLocalizedDocument("profile", locale);
+/** @brief 构建期共享的 GitHub 公开资料 (Build-shared public GitHub profile)。 */
+const profileSnapshot = await getProfileSnapshot();
 
 /** @brief 首页重点去向卡片 (Featured home-page destinations)。 */
 const destinations = [
@@ -68,26 +72,29 @@ const destinations = [
         </div>
       </div>
 
-      <nav class="destinations" aria-label={copy.home.exploreLabel}>
-        {
-          destinations.map((destination) => (
-            <a
-              class:list={["destination", destination.modifier]}
-              href={destination.href}
-              aria-label={`${destination.title} — ${destination.description}`}
-              data-reveal
-              style={`--reveal-delay: ${80 + Number(destination.index) * 45}ms`}
-            >
-              <span class="destination__index" aria-hidden="true">{destination.index}</span>
-              <span class="destination__body">
-                <strong>{destination.title}</strong>
-                <small>{destination.description}</small>
-              </span>
-              <span class="destination__arrow" aria-hidden="true">↗</span>
-            </a>
-          ))
-        }
-      </nav>
+      <div class="home-hero__aside">
+        <GitHubProfileCard snapshot={profileSnapshot} locale={locale} copy={copy.home} />
+        <nav class="destinations" aria-label={copy.home.exploreLabel}>
+          {
+            destinations.map((destination) => (
+              <a
+                class:list={["destination", destination.modifier]}
+                href={destination.href}
+                aria-label={`${destination.title} — ${destination.description}`}
+                data-reveal
+                style={`--reveal-delay: ${80 + Number(destination.index) * 45}ms`}
+              >
+                <span class="destination__index" aria-hidden="true">{destination.index}</span>
+                <span class="destination__body">
+                  <strong>{destination.title}</strong>
+                  <small>{destination.description}</small>
+                </span>
+                <span class="destination__arrow" aria-hidden="true">↗</span>
+              </a>
+            ))
+          }
+        </nav>
+      </div>
     </section>
 
     <section class="home-profile" aria-label={copy.home.profileLabel} data-reveal>
