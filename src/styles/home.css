@@ -176,7 +176,7 @@
   text-transform: uppercase;
 }
 
-.github-profile__source > span {
+.github-profile__source > span:first-child {
   width: 0.42rem;
   aspect-ratio: 1;
   border-radius: 50%;

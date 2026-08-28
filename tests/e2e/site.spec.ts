@@ -155,6 +155,12 @@ test("home upgrades its static GitHub profile with live browser data", async ({ 
     await expect(profile).toHaveAttribute("data-profile-state", "live");
     await expect(profile.locator("[data-profile-name]")).toHaveText("MoeSegFault Live");
     await expect(profile.locator('[data-profile-stat="repositories"]')).toHaveText("47");
+    /** @brief 不应被状态圆点样式压缩的资料来源标签 (Profile-source label that must not inherit the status-dot sizing)。 */
+    const sourceLabel = profile.locator("[data-profile-source-label]");
+    await expect(sourceLabel).toBeVisible();
+    expect(
+      await sourceLabel.evaluate((element) => element.scrollWidth - element.clientWidth),
+    ).toBeLessThanOrEqual(1);
     await expect(profile.locator("img.github-profile__avatar")).toHaveAttribute(
       "src",
       /avatars\.githubusercontent\.com/,
