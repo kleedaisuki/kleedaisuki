@@ -30,6 +30,28 @@ const homeViewports = [
   { name: "desktop", width: 1440, height: 900 },
 ] as const;
 
+/** @brief 浏览器动态 GitHub 请求使用的确定性测试资料 (Deterministic profile used by mocked browser-side GitHub requests)。 */
+const liveGitHubProfile = {
+  login: "kleedaisuki",
+  name: "MoeSegFault Live",
+  avatar_url: "https://avatars.githubusercontent.com/u/189504231?v=4",
+  html_url: "https://github.com/kleedaisuki",
+  bio: "Dynamically refreshed profile",
+  company: "Live Systems Lab",
+  blog: "https://me.moesegfault.dev",
+  location: "Tianjin, China",
+  public_repos: 47,
+  followers: 11,
+  following: 5,
+  created_at: "2024-11-24T05:57:43Z",
+} as const;
+
+test.beforeEach(async ({ page }) => {
+  await page.route("https://api.github.com/users/kleedaisuki", async (route) => {
+    await route.fulfill({ status: 200, contentType: "application/json", json: liveGitHubProfile });
+  });
+});
+
 /**
  * @brief 验证当前文档的核心静态页面不变量 (Verify core static-page invariants for the current document)。
  * @param page Playwright 页面对象 (Playwright page object)。
@@ -124,12 +146,15 @@ test("primary navigation and controls remain touch-reachable", async ({ page }) 
   await expectTouchTarget(page.locator("button[data-theme-toggle]"));
 });
 
-test("home renders the build-synced public GitHub profile", async ({ page }) => {
+test("home upgrades its static GitHub profile with live browser data", async ({ page }) => {
   for (const path of ["/", "/en/"] as const) {
     await page.goto(path, { waitUntil: "domcontentloaded" });
-    /** @brief 构建期写入首页的 GitHub 资料卡 (GitHub profile card written into the home page at build time)。 */
+    /** @brief 由静态基线升级的 GitHub 资料卡 (GitHub profile card upgraded from its static baseline)。 */
     const profile = page.locator(".github-profile");
     await expect(profile).toBeVisible();
+    await expect(profile).toHaveAttribute("data-profile-state", "live");
+    await expect(profile.locator("[data-profile-name]")).toHaveText("MoeSegFault Live");
+    await expect(profile.locator('[data-profile-stat="repositories"]')).toHaveText("47");
     await expect(profile.locator("img.github-profile__avatar")).toHaveAttribute(
       "src",
       /avatars\.githubusercontent\.com/,
@@ -140,6 +165,48 @@ test("home renders the build-synced public GitHub profile", async ({ page }) => 
     );
     await expect(profile.locator(".github-profile__stats > div")).toHaveCount(3);
   }
+});
+
+test("home keeps the build-time GitHub profile when the live request fails", async ({ page }) => {
+  await page.route("https://api.github.com/users/kleedaisuki", async (route) => {
+    await route.abort("failed");
+  });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  /** @brief 动态失败后仍包含构建期内容的资料卡 (Profile card retaining build-time content after a dynamic failure)。 */
+  const profile = page.locator(".github-profile");
+  await page.waitForFunction(() => {
+    /** @brief 当前 GitHub 资料卡 (Current GitHub profile card)。 */
+    const card = document.querySelector<HTMLElement>(".github-profile");
+    return card?.dataset.profileState === "static" && card.getAttribute("aria-busy") === "false";
+  });
+  await expect(profile.locator("[data-profile-name]")).not.toBeEmpty();
+  await expect(profile.locator('[data-profile-stat="repositories"]')).not.toBeEmpty();
+  await expect(profile.locator("[data-profile-source-label]")).toHaveText("构建期快照");
+});
+
+test("home restores its static state when a live avatar cannot load", async ({ page }) => {
+  /** @brief 用于覆盖预加载路径的不可用头像地址 (Unavailable avatar URL used to exercise the preload path)。 */
+  const unavailableAvatar = "https://avatars.githubusercontent.com/u/profile-refresh-test";
+  await page.route("https://api.github.com/users/kleedaisuki", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      json: { ...liveGitHubProfile, avatar_url: unavailableAvatar },
+    });
+  });
+  await page.route(unavailableAvatar, async (route) => {
+    await route.abort("failed");
+  });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+
+  await page.waitForFunction(() => {
+    /** @brief 当前 GitHub 资料卡 (Current GitHub profile card)。 */
+    const card = document.querySelector<HTMLElement>(".github-profile");
+    return card?.dataset.profileState === "static" && card.getAttribute("aria-busy") === "false";
+  });
+  await expect(page.locator("[data-profile-name]")).not.toHaveText("MoeSegFault Live");
+  await expect(page.locator("[data-profile-source-label]")).toHaveText("构建期快照");
 });
 
 for (const viewport of homeViewports) {

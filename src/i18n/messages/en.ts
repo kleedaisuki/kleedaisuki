@@ -54,8 +54,8 @@ export const en = {
     introduction:
       "Exploring the edges of software systems, parallel computing, and machine learning—measuring performance while asking how technology should live with people.",
     githubProfileLabel: "Public GitHub profile",
-    githubLive: "Synced at build time",
-    githubSnapshot: "Recent snapshot",
+    githubLive: "Live GitHub profile",
+    githubSnapshot: "Build-time snapshot",
     repositories: "Public repos",
     followers: "Followers",
     following: "Following",

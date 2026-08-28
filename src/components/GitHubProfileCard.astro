@@ -1,7 +1,7 @@
 ---
-import type { GitHubProfileSnapshot } from "../lib/github-profile";
 import type { Locale } from "../i18n";
 import type { Messages } from "../i18n/types";
+import type { GitHubProfileSnapshot } from "../lib/github-profile";
 
 /** @brief GitHub 公开资料卡片属性 (Public GitHub profile-card properties)。 */
 interface Props {
@@ -26,20 +26,26 @@ const displayBlog = profile.blog?.replace(/^https?:\/\//, "").replace(/\/$/, "")
 /** @brief 资料简介在当前页面中的语言标记 (Language annotation for the profile biography)。 */
 const bioLanguage =
   locale === "zh" && profile.bio && !/\p{Script=Han}/u.test(profile.bio) ? "en" : undefined;
-/** @brief 可为空的资料元数据条目 (Optional profile metadata entries)。 */
-const metadata = [
-  profile.company ? { glyph: "⌘", text: profile.company } : undefined,
-  profile.location ? { glyph: "⌖", text: profile.location } : undefined,
-].filter((item): item is { glyph: string; text: string } => Boolean(item));
 /** @brief GitHub 公开统计数据 (Public GitHub statistics)。 */
 const statistics = [
-  { value: profile.publicRepositories, label: copy.repositories },
-  { value: profile.followers, label: copy.followers },
-  { value: profile.following, label: copy.following },
+  { id: "repositories", value: profile.publicRepositories, label: copy.repositories },
+  { id: "followers", value: profile.followers, label: copy.followers },
+  { id: "following", value: profile.following, label: copy.following },
 ] as const;
 ---
 
-<aside class="github-profile" aria-labelledby="github-profile-name" data-reveal>
+<aside
+  class="github-profile"
+  aria-labelledby="github-profile-name"
+  data-reveal
+  data-github-profile
+  data-profile-state="static"
+  data-profile-endpoint={`https://api.github.com/users/${encodeURIComponent(profile.login)}`}
+  data-profile-locale={locale === "zh" ? "zh-CN" : "en"}
+  data-profile-live-label={copy.githubLive}
+  data-profile-static-label={copy.githubSnapshot}
+  data-profile-avatar-suffix={locale === "zh" ? " 的 GitHub 头像" : "'s GitHub avatar"}
+>
   <header class="github-profile__header">
     <img
       class="github-profile__avatar"
@@ -53,25 +59,30 @@ const statistics = [
       }
       loading="eager"
       fetchpriority="high"
+      data-profile-avatar
     />
     <div class="github-profile__identity">
-      <span class="github-profile__source">
+      <span class="github-profile__source" aria-live="polite">
         <span aria-hidden="true"></span>
-        {snapshot.source === "github" ? copy.githubLive : copy.githubSnapshot}
+        <span data-profile-source-label>{copy.githubSnapshot}</span>
       </span>
-      <h2 id="github-profile-name">{profile.name ?? profile.login}</h2>
-      <a href={profile.profileUrl}>@{profile.login}<span aria-hidden="true"> ↗</span></a>
+      <h2 id="github-profile-name" data-profile-name>{profile.name ?? profile.login}</h2>
+      <a href={profile.profileUrl} data-profile-link>
+        @<span data-profile-login>{profile.login}</span><span aria-hidden="true"> ↗</span>
+      </a>
     </div>
   </header>
 
-  {profile.bio && <p class="github-profile__bio" lang={bioLanguage}>{profile.bio}</p>}
+  <p class="github-profile__bio" lang={bioLanguage} hidden={!profile.bio} data-profile-bio>
+    {profile.bio}
+  </p>
 
   <dl class="github-profile__stats" aria-label={copy.githubProfileLabel}>
     {
       statistics.map((statistic) => (
         <div>
           <dt>{statistic.label}</dt>
-          <dd>{statistic.value}</dd>
+          <dd data-profile-stat={statistic.id}>{statistic.value}</dd>
         </div>
       ))
     }
@@ -79,17 +90,22 @@ const statistics = [
 
   <footer class="github-profile__metadata">
     <ul>
-      {
-        metadata.map((item) => (
-          <li><span aria-hidden="true">{item.glyph}</span>{item.text}</li>
-        ))
-      }
-      <li><span aria-hidden="true">◷</span>{copy.joinedGitHub} {joinedYear}</li>
+      <li hidden={!profile.company} data-profile-company>
+        <span aria-hidden="true">⌘</span><span data-profile-company-text>{profile.company}</span>
+      </li>
+      <li hidden={!profile.location} data-profile-location>
+        <span aria-hidden="true">⌖</span><span data-profile-location-text>{profile.location}</span>
+      </li>
+      <li>
+        <span aria-hidden="true">◷</span>{copy.joinedGitHub} <span data-profile-joined>{joinedYear}</span>
+      </li>
     </ul>
-    {
-      profile.blog && displayBlog && (
-        <a href={profile.blog}>{displayBlog}<span aria-hidden="true"> ↗</span></a>
-      )
-    }
+    <a href={profile.blog ?? undefined} hidden={!profile.blog} data-profile-blog>
+      <span data-profile-blog-text>{displayBlog}</span><span aria-hidden="true"> ↗</span>
+    </a>
   </footer>
 </aside>
+
+<script>
+  import "../scripts/github-profile";
+</script>

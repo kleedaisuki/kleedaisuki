@@ -124,6 +124,10 @@
   box-shadow: var(--shadow-small);
 }
 
+.github-profile [hidden] {
+  display: none;
+}
+
 .github-profile__header {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -178,6 +182,17 @@
   border-radius: 50%;
   background: var(--coral-strong);
   box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--coral) 16%, transparent);
+}
+
+.github-profile[data-profile-state="refreshing"] .github-profile__source > span:first-child {
+  animation: profile-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes profile-pulse {
+  50% {
+    opacity: 0.42;
+    transform: scale(0.72);
+  }
 }
 
 .github-profile__bio {
@@ -488,5 +503,9 @@ html[lang="zh-CN"] .home-hero h1 {
 
   .destination__arrow {
     transition: none;
+  }
+
+  .github-profile[data-profile-state="refreshing"] .github-profile__source > span:first-child {
+    animation: none;
   }
 }
