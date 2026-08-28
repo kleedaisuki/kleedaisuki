@@ -53,6 +53,8 @@ interface MutableSection {
 
 /** @brief Markdown 标题行的匹配表达式 (Pattern matching Markdown heading lines)。 */
 const headingPattern = /^(#{1,3})\s+(.+?)\s*#*\s*$/;
+/** @brief 围栏代码块起始行的匹配表达式 (Pattern matching fenced-code opening lines)。 */
+const fencePattern = /^ {0,3}(`{3,}|~{3,})/;
 /** @brief 中英文更新时间行的匹配表达式 (Pattern matching localized update-date lines)。 */
 const updatedPattern = /^(?:Updated|更新于)\s*[:：]\s*(\d{4}-\d{2}-\d{2})\s*$/i;
 
@@ -86,6 +88,8 @@ export function parseShowcaseDocument(markdown: string): ShowcaseDocument {
   let section: MutableSection | undefined;
   /** @brief 当前解析主题 (Topic currently being parsed)。 */
   let item: MutableItem | undefined;
+  /** @brief 当前围栏代码块的标记；未处于代码块时为空 (Active fenced-code marker, empty outside a fence)。 */
+  let fence: { readonly character: "`" | "~"; readonly length: number } | undefined;
 
   /** @brief 完成当前三级主题 (Finalize the current tertiary topic)。 */
   const finishItem = (): void => {
@@ -107,6 +111,27 @@ export function parseShowcaseDocument(markdown: string): ShowcaseDocument {
   };
 
   for (const line of markdown.split(/\r?\n/)) {
+    if (fence) {
+      /** @brief 与当前围栏类型相同的候选结束标记 (Candidate closing marker matching the active fence type)。 */
+      const candidate = line.match(/^ {0,3}(`+|~+)\s*$/)?.[1];
+      if (candidate?.[0] === fence.character && candidate.length >= fence.length) {
+        fence = undefined;
+      }
+      (item?.lines ?? section?.lines ?? introLines).push(line);
+      continue;
+    }
+
+    /** @brief 当前行的围栏代码块起始标记 (Fenced-code opening marker on the current line)。 */
+    const openingFence = line.match(fencePattern)?.[1];
+    if (openingFence) {
+      fence = {
+        character: openingFence[0] as "`" | "~",
+        length: openingFence.length,
+      };
+      (item?.lines ?? section?.lines ?? introLines).push(line);
+      continue;
+    }
+
     /** @brief 当前行的标题匹配结果 (Heading match for the current line)。 */
     const heading = line.match(headingPattern);
     /** @brief 当前标题的纯文本，非标题行为空 (Plain heading text, empty for non-heading lines)。 */
