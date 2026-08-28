@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">MoeSegFault</title>
+  <desc id="description">MoeSegFault personal site social card in warm coral and cream colors.</desc>
+  <defs>
+    <linearGradient id="background" x1="96" y1="36" x2="1108" y2="594" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff9ef" />
+      <stop offset="1" stop-color="#ffe4ce" />
+    </linearGradient>
+    <linearGradient id="brand" x1="130" y1="134" x2="404" y2="430" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ff8569" />
+      <stop offset="1" stop-color="#bd4525" />
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(1008 84) rotate(132) scale(440 366)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffb55e" stop-opacity=".55" />
+      <stop offset="1" stop-color="#ffb55e" stop-opacity="0" />
+    </radialGradient>
+    <pattern id="dots" width="32" height="32" patternUnits="userSpaceOnUse">
+      <circle cx="3" cy="3" r="2" fill="#e66a3f" fill-opacity=".12" />
+    </pattern>
+    <filter id="shadow" x="-25%" y="-25%" width="150%" height="160%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="22" stdDeviation="20" flood-color="#9e4e25" flood-opacity=".18" />
+    </filter>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#background)" />
+  <rect width="1200" height="630" fill="url(#glow)" />
+  <rect width="1200" height="630" fill="url(#dots)" />
+  <path d="M0 520C208 458 338 560 532 534c216-29 343-174 668-121v217H0V520Z" fill="#fffdf8" fill-opacity=".76" />
+
+  <g filter="url(#shadow)">
+    <rect x="104" y="119" width="310" height="310" rx="78" fill="url(#brand)" />
+    <text x="259" y="322" fill="#fffaf2" font-family="Atkinson Hyperlegible, Noto Sans, Arial, sans-serif" font-size="116" font-weight="700" letter-spacing="-9" text-anchor="middle">MS</text>
+  </g>
+
+  <path d="m381 88 10 26 26 10-26 10-10 26-10-26-26-10 26-10 10-26Z" fill="#ffb55e" />
+  <path d="m1072 466 7 19 19 7-19 7-7 19-7-19-19-7 19-7 7-19Z" fill="#e66a3f" fill-opacity=".72" />
+
+  <g fill="#26110b" font-family="Atkinson Hyperlegible, Noto Sans, Arial, sans-serif">
+    <text x="484" y="251" font-size="72" font-weight="700" letter-spacing="-2">MoeSegFault</text>
+    <text x="488" y="316" fill="#805648" font-size="30" font-weight="400">Ideas into reliable, delightful systems.</text>
+  </g>
+  <line x1="488" y1="363" x2="1066" y2="363" stroke="#f1bd96" stroke-width="3" />
+  <text x="488" y="415" fill="#bd4525" font-family="Atkinson Hyperlegible, Noto Sans, Arial, sans-serif" font-size="25" font-weight="700" letter-spacing="2">ME.MOESEGFAULT.DEV</text>
+</svg>
