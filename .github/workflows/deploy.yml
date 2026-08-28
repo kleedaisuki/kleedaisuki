@@ -25,6 +25,17 @@ jobs:
         uses: withastro/action@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify types and formatting
+        run: pnpm check && pnpm lint && pnpm format:check
+      - name: Smoke-test Pages output
+        run: |
+          test -f dist/index.html
+          test -f dist/uses/index.html
+          test -f dist/now/index.html
+          test -f dist/projects/index.html
+          test -f dist/contact/index.html
+          test -f dist/404.html
+          grep -qx 'me.moesegfault.dev' dist/CNAME
 
   deploy:
     name: Deploy
