@@ -180,3 +180,8 @@ test("theme toggle updates and persists the selected theme", async ({ page }) =>
   await page.reload({ waitUntil: "domcontentloaded" });
   await expect(page.locator("html")).toHaveAttribute("data-theme", selectedTheme);
 });
+
+test("bilingual 404 language switch returns to an existing localized home", async ({ page }) => {
+  await page.goto("/404.html");
+  await expect(page.locator(".language-switch")).toHaveAttribute("href", "/en/");
+});

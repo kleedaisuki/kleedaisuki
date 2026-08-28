@@ -34,12 +34,8 @@ const inferredPage = pages.find(
 const page = Astro.props.page ?? inferredPage;
 /** @brief 目标切换语言 (Destination locale for the language switch)。 */
 const targetLocale = alternateLocale(locale);
-/** @brief 同页语言切换地址 (Same-page destination for the language switch)。 */
-const languageHref = page
-  ? pagePath(page, targetLocale)
-  : targetLocale === "en"
-    ? `/en${localPath}/`
-    : `${localPath}/`;
+/** @brief 语言切换地址，未知页面回到目标语言首页 (Language-switch destination, falling back to the target-language home for unknown pages)。 */
+const languageHref = page ? pagePath(page, targetLocale) : pagePath("home", targetLocale);
 
 /**
  * @brief 判断页面是否为当前页面 (Determine whether a page is current)。
