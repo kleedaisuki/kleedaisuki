@@ -1,18 +1,30 @@
 ---
+import { PROJECT_COPY, localizeProjectDescription } from "../data/project-copy";
+import { getMessages, type Locale } from "../i18n";
 import type { GitHubProject } from "../lib/github";
 
-/**
- * @brief 项目卡片属性 (project card properties)。
- */
+/** @brief 项目卡片属性 (Project card properties)。 */
 interface Props {
-  /** @brief 待展示的规范化项目 (normalized project to display)。 */
+  /** @brief 待展示的规范化项目 (Normalized project to display)。 */
   project: GitHubProject;
+  /** @brief 当前页面语言 (Current page locale)。 */
+  locale: Locale;
 }
 
-/** @brief 当前卡片的项目数据 (project data for this card)。 */
-const { project } = Astro.props;
+/** @brief 当前卡片属性 (Properties for the current card)。 */
+const { project, locale } = Astro.props as Props;
+/** @brief 当前语言的全站文案 (Site messages for the active locale)。 */
+const message = getMessages(locale);
+/** @brief 当前语言的项目辅助文案 (Project supporting copy for the active locale)。 */
+const copy = PROJECT_COPY[locale];
+/** @brief 当前项目的简介与语言信息 (Description and language information for the current project)。 */
+const description = localizeProjectDescription(project, locale);
+/** @brief 当前语言环境下格式化的更新时间 (Update date formatted for the active locale)。 */
+const updatedAt = new Intl.DateTimeFormat(locale === "zh" ? "zh-CN" : "en-US", {
+  dateStyle: "medium",
+}).format(new Date(project.updatedAt));
 
-/** @brief 常见语言的视觉标识颜色 (visual marker colors for common languages)。 */
+/** @brief 常见语言的视觉标识颜色 (Visual marker colors for common languages)。 */
 const LANGUAGE_COLORS: Readonly<Record<string, string>> = {
   Astro: "#ff5d01",
   "C++": "#f34b7d",
@@ -25,51 +37,62 @@ const LANGUAGE_COLORS: Readonly<Record<string, string>> = {
   TypeScript: "#3178c6",
 };
 
-/** @brief 当前语言的标识颜色 (marker color for the current language)。 */
+/** @brief 当前语言的标识颜色 (Marker color for the current language)。 */
 const languageColor = project.language
   ? (LANGUAGE_COLORS[project.language] ?? "var(--coral)")
   : "var(--text-soft)";
 ---
 
 <article class="project-card">
-  <div class="project-card__heading">
+  <header class="project-card__heading">
     <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22">
       <path d="M4 3.5A2.5 2.5 0 0 1 6.5 1H20v18H6.75A1.75 1.75 0 0 0 5 20.75V21h15v2H4.75A1.75 1.75 0 0 1 3 21.25V5a1.5 1.5 0 0 1 1-1.5ZM6 3v14.06c.24-.04.49-.06.75-.06H18V3H6Z"></path>
     </svg>
     <h2>
-      <a href={project.repositoryUrl}>
+      <a href={project.repositoryUrl} aria-label={`${message.projects.repository}: ${project.name}`}>
         {project.name}
       </a>
     </h2>
-  </div>
+  </header>
 
-  <p class="project-card__description">
-    {project.description ?? "这个项目正在安静地生长，简介稍后补完。"}
-  </p>
+  <p class="project-card__description" lang={description.lang}>{description.text}</p>
 
-  {project.topics.length > 0 && (
-    <ul class="project-card__topics" aria-label="项目主题">
-      {project.topics.map((topic) => <li>{topic}</li>)}
-    </ul>
-  )}
+  {
+    project.topics.length > 0 && (
+      <ul class="project-card__topics" aria-label={`${copy.topicsLabel}: ${project.name}`}>
+        {project.topics.map((topic) => <li>{topic}</li>)}
+      </ul>
+    )
+  }
 
   <footer class="project-card__footer">
     <div class="project-card__metrics">
-      {project.language && (
-        <span class="project-card__language" style={`--language-color: ${languageColor}`}>
-          <span class="project-card__language-dot" aria-hidden="true"></span>
-          {project.language}
-        </span>
-      )}
-      <span aria-label={`${project.stars} 个星标`}>★ {project.stars}</span>
-      <span aria-label={`${project.forks} 个分叉`}>⑂ {project.forks}</span>
+      {
+        project.language && (
+          <span class="project-card__language" style={`--language-color: ${languageColor}`}>
+            <span class="project-card__language-dot" aria-hidden="true" />
+            {project.language}
+          </span>
+        )
+      }
+      <span aria-label={`${message.projects.stars}: ${project.stars}`}>★ {project.stars}</span>
+      <span aria-label={`${message.projects.forks}: ${project.forks}`}>⑂ {project.forks}</span>
+      <time datetime={project.updatedAt} title={`${message.projects.updatedAt}: ${updatedAt}`}>
+        {message.projects.updatedAt}: {updatedAt}
+      </time>
     </div>
 
-    {project.homepage && (
-      <a class="project-card__homepage" href={project.homepage}>
-        访问主页 <span aria-hidden="true">↗</span>
-      </a>
-    )}
+    {
+      project.homepage && (
+        <a
+          class="project-card__homepage"
+          href={project.homepage}
+          aria-label={`${message.projects.homepage}: ${project.name}`}
+        >
+          {message.projects.homepage} <span aria-hidden="true">↗</span>
+        </a>
+      )
+    }
   </footer>
 </article>
 
@@ -78,25 +101,21 @@ const languageColor = project.language
     display: flex;
     flex-direction: column;
     min-width: 0;
-    min-height: 16rem;
-    padding: 1.35rem;
+    min-height: 17rem;
+    padding: clamp(1.1rem, 3vw, 1.35rem);
     border: 1px solid var(--border);
     border-radius: var(--radius-medium);
+    background: var(--surface-solid);
     background: linear-gradient(145deg, var(--surface-solid), var(--surface-soft));
     box-shadow: var(--shadow-small);
     transition: transform var(--motion-base) var(--ease), border-color var(--motion-base) var(--ease), box-shadow var(--motion-base) var(--ease);
-  }
-
-  .project-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--coral);
-    box-shadow: var(--shadow);
   }
 
   .project-card__heading {
     display: flex;
     align-items: center;
     gap: 0.7rem;
+    min-width: 0;
   }
 
   .project-card__heading svg {
@@ -130,6 +149,7 @@ const languageColor = project.language
 
   .project-card__description {
     margin: 1rem 0;
+    overflow-wrap: anywhere;
     color: var(--text-soft);
     line-height: 1.65;
   }
@@ -144,8 +164,11 @@ const languageColor = project.language
   }
 
   .project-card__topics li {
+    max-width: 100%;
     padding: 0.18rem 0.62rem;
-    border: 1px solid color-mix(in srgb, var(--coral) 22%, transparent);
+    overflow-wrap: anywhere;
+    border: 1px solid var(--border);
+    border-color: color-mix(in srgb, var(--coral) 22%, transparent);
     border-radius: 999px;
     color: var(--coral-strong);
     background: var(--coral-soft);
@@ -156,7 +179,7 @@ const languageColor = project.language
   .project-card__footer {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
     gap: 0.75rem;
     margin-top: auto;
@@ -170,7 +193,13 @@ const languageColor = project.language
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.8rem;
+    gap: 0.55rem 0.8rem;
+    min-width: 0;
+  }
+
+  .project-card__metrics time {
+    flex-basis: 100%;
+    font-variant-numeric: tabular-nums;
   }
 
   .project-card__language {
@@ -182,24 +211,45 @@ const languageColor = project.language
   .project-card__language-dot {
     width: 0.7rem;
     height: 0.7rem;
-    border: 1px solid color-mix(in srgb, var(--language-color) 72%, #000);
+    border: 1px solid var(--language-color);
+    border-color: color-mix(in srgb, var(--language-color) 72%, #000);
     border-radius: 50%;
     background: var(--language-color);
   }
 
   .project-card__homepage {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding-inline: 0.15rem;
     color: var(--coral-strong);
     font-weight: 700;
     text-decoration: none;
+    touch-action: manipulation;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .project-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--coral);
+      box-shadow: var(--shadow);
+    }
+  }
+
+  @media (max-width: 24rem) {
+    .project-card__footer,
+    .project-card__metrics {
+      align-items: stretch;
+    }
+
+    .project-card__footer {
+      flex-direction: column;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .project-card {
       transition: none;
-    }
-
-    .project-card:hover {
-      transform: none;
     }
   }
 </style>

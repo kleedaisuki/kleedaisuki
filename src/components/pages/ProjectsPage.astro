@@ -1,0 +1,167 @@
+---
+import ProjectCard from "../ProjectCard.astro";
+import { PROJECT_COPY } from "../../data/project-copy";
+import { getMessages, type Locale } from "../../i18n";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getProjectDirectory } from "../../lib/project-catalog";
+
+/** @brief 本地化项目页面属性 (Localized projects-page properties)。 */
+interface Props {
+  /** @brief 当前页面语言 (Current page locale)。 */
+  locale: Locale;
+}
+
+/** @brief 当前页面语言 (Current page locale)。 */
+const { locale } = Astro.props as Props;
+/** @brief 当前语言的全站文案 (Site messages for the active locale)。 */
+const message = getMessages(locale);
+/** @brief 当前语言的项目辅助文案 (Project supporting copy for the active locale)。 */
+const copy = PROJECT_COPY[locale];
+/** @brief 构建期共享且规范化的 GitHub 项目目录 (Build-shared normalized GitHub project directory)。 */
+const { projects, source } = await getProjectDirectory();
+---
+
+<BaseLayout locale={locale} page="projects">
+  <section class="projects-hero" aria-labelledby="projects-title">
+    <p class="projects-hero__eyebrow">{message.projects.eyebrow}</p>
+    <h1 id="projects-title">{copy.title}</h1>
+    <p>{message.projects.intro}</p>
+    <p class="projects-hero__source">
+      <span>{message.projects.sourceLabel}:</span>
+      <strong>
+        {source === "github" ? message.projects.sourceLive : message.projects.sourceFallback}
+      </strong>
+    </p>
+    <a href="https://github.com/kleedaisuki">
+      {copy.viewAll} <span aria-hidden="true">↗</span>
+    </a>
+  </section>
+
+  {
+    source === "fallback" && (
+      <p class="projects-status" role="status">
+        <strong>{message.projects.sourceFallback}:</strong> {copy.fallbackNotice}
+      </p>
+    )
+  }
+
+  <section class="projects-list" aria-label={copy.listLabel}>
+    {projects.map((project) => <ProjectCard project={project} locale={locale} />)}
+  </section>
+</BaseLayout>
+
+<style>
+  .projects-hero {
+    position: relative;
+    overflow: hidden;
+    margin: 1rem 0 2rem;
+    padding: clamp(1.35rem, 6vw, 2.6rem);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-large);
+    background: var(--surface-solid);
+    background: linear-gradient(125deg, var(--surface-solid), var(--coral-soft));
+    box-shadow: var(--shadow);
+    isolation: isolate;
+  }
+
+  .projects-hero::after {
+    position: absolute;
+    z-index: -1;
+    right: -2.2rem;
+    bottom: -3.8rem;
+    width: 11rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--coral-soft);
+    background: radial-gradient(circle, color-mix(in srgb, var(--gold) 55%, transparent), transparent 70%);
+    content: "";
+    pointer-events: none;
+  }
+
+  .projects-hero__eyebrow {
+    margin: 0 0 0.5rem;
+    color: var(--coral-strong);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .projects-hero h1 {
+    margin: 0;
+    overflow-wrap: anywhere;
+    color: var(--heading);
+    font-size: clamp(2.3rem, 11vw, 4.25rem);
+    line-height: 1;
+    letter-spacing: -0.045em;
+  }
+
+  .projects-hero > p:not(.projects-hero__eyebrow) {
+    max-width: 43rem;
+    margin: 1rem 0;
+    color: var(--text-soft);
+  }
+
+  .projects-hero > .projects-hero__source {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-block: -0.25rem 0.6rem;
+    font-size: 0.82rem;
+  }
+
+  .projects-hero__source strong {
+    color: var(--heading);
+  }
+
+  .projects-hero a {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2.75rem;
+    color: var(--coral-strong);
+    font-weight: 800;
+    text-underline-offset: 0.24em;
+    touch-action: manipulation;
+  }
+
+  .projects-hero a:focus-visible {
+    border-radius: 0.3rem;
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .projects-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18.5rem), 1fr));
+    gap: 1.15rem;
+    min-width: 0;
+    margin-bottom: 2rem;
+  }
+
+  .projects-status {
+    margin: 0 0 1.25rem;
+    padding: 0.8rem 1rem;
+    overflow-wrap: anywhere;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-small);
+    color: var(--text-soft);
+    background: var(--surface-soft);
+  }
+
+  @media (max-width: 24rem) {
+    .projects-hero {
+      margin-top: 0.5rem;
+      border-radius: var(--radius-medium);
+    }
+  }
+
+  @supports (padding: max(0px)) {
+    .projects-hero {
+      padding-right: max(clamp(1.35rem, 6vw, 2.6rem), env(safe-area-inset-right));
+      padding-left: max(clamp(1.35rem, 6vw, 2.6rem), env(safe-area-inset-left));
+    }
+  }
+</style>
