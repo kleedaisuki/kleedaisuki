@@ -48,20 +48,27 @@ export const en = {
     readMore: "Read more",
   },
   home: {
-    eyebrow: "Hello, Internet",
-    greeting: "Hi, I'm MoeSegFault.",
-    headline: "I turn ideas into systems.",
+    eyebrow: "Signal connected",
+    greeting: "This is MoeSegFault.",
+    headline: "I turn sparks of thought into worlds that run.",
     introduction:
-      "I care about software systems, parallel computing, machine learning, and the relationship between technology and people.",
-    profileLabel: "About MoeSegFault",
-    exploreLabel: "Keep exploring",
+      "Exploring the edges of software systems, parallel computing, and machine learning—measuring performance while asking how technology should live with people.",
+    profileLabel: "Identity fragments",
+    exploreLabel: "Choose a path",
     blogTitle: "Blog",
-    blogDescription: "Long-form engineering notes, research thoughts, and occasional life updates.",
+    blogDescription:
+      "Engineering notes, research fragments, and the occasional life update escaping the main thread.",
     botTitle: "FOGMOE Bot",
-    botDescription: "A doorway to the FOGMOE community bot.",
+    botDescription: "The live doorway to FOGMOE—and an agent experiment still taking shape.",
   },
-  uses: { eyebrow: "Tools and environment" },
-  now: { eyebrow: "In progress" },
+  uses: {
+    eyebrow: "Everyday loadout",
+    intro: "A living snapshot of the tools I build, measure, and think with.",
+  },
+  now: {
+    eyebrow: "Current coordinates",
+    intro: "Not a complete log—just the systems, questions, and directions taking shape right now.",
+  },
   projects: {
     eyebrow: "Open source and experiments",
     intro: "Public GitHub projects, ordered by their most recent update.",

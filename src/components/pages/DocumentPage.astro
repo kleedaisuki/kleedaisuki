@@ -1,9 +1,10 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
+import DocumentShowcase from "../DocumentShowcase.astro";
 import { getMessages } from "../../i18n";
 import { getLocalizedDocument, type LocalizedDocumentId } from "../../i18n/content";
 import type { Locale } from "../../i18n/types";
-import MarkdownPage from "../MarkdownPage.astro";
+import { parseShowcaseDocument, type ShowcaseVariant } from "../../lib/document-showcase";
 
 /** @brief 本地化文档页属性 / Localized document-page properties. */
 interface Props {
@@ -21,19 +22,19 @@ const metadata = copy.meta[documentId];
 /** @brief 当前文档的辅助文案 / Supporting copy for the active document. */
 const documentCopy = copy[documentId];
 /** @brief 已按语言解析的 Markdown 内容 / Markdown content resolved for the active locale. */
-const { Content } = await getLocalizedDocument(documentId, locale);
+const { markdown } = await getLocalizedDocument(documentId, locale);
+/** @brief 当前文档的展陈视觉变体 / Showcase visual variant for the active document. */
+const variant: ShowcaseVariant = documentId === "uses" ? "toolkit" : "pulse";
+/** @brief 从事实源 Markdown 构建的章节化数据 / Sectionized data built from the source-of-truth Markdown. */
+const document = parseShowcaseDocument(markdown);
 ---
 
 <BaseLayout locale={locale} page={documentId} title={metadata.title} description={metadata.description}>
-	<div class="page-shell content-shell">
-		<MarkdownPage Content={Content} eyebrow={documentCopy.eyebrow} lede={metadata.description} />
-	</div>
+	<DocumentShowcase
+		{variant}
+		eyebrow={documentCopy.eyebrow}
+		lede={documentCopy.intro}
+		updatedLabel={copy.common.updated}
+		{document}
+	/>
 </BaseLayout>
-
-<style>
-	.content-shell {
-		width: min(var(--reading-width), 100%);
-		min-width: 0;
-		margin-inline: auto;
-	}
-</style>

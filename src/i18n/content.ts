@@ -8,6 +8,8 @@ export type LocalizedDocumentId = "profile" | "uses" | "now";
 export interface LocalizedDocument {
   /** @brief 已渲染的 Astro Markdown 组件 / Rendered Astro Markdown component. */
   Content: Awaited<ReturnType<typeof render>>["Content"];
+  /** @brief 去除 frontmatter 后的原始 Markdown 正文 (Raw Markdown body with frontmatter removed)。 */
+  markdown: string;
 }
 
 /**
@@ -39,22 +41,22 @@ export async function getLocalizedDocument(
   if (documentId === "profile" && locale === "zh") {
     const entry = requireEntry(await getCollection("profile"), "README");
     const { Content } = await render(entry);
-    return { Content };
+    return { Content, markdown: entry.body ?? "" };
   }
 
   if (documentId === "profile") {
     const entry = requireEntry(await getCollection("translations"), "profile");
     const { Content } = await render(entry);
-    return { Content };
+    return { Content, markdown: entry.body ?? "" };
   }
 
   if (locale === "en") {
     const entry = requireEntry(await getCollection("docs"), documentId);
     const { Content } = await render(entry);
-    return { Content };
+    return { Content, markdown: entry.body ?? "" };
   }
 
   const entry = requireEntry(await getCollection("translations"), documentId);
   const { Content } = await render(entry);
-  return { Content };
+  return { Content, markdown: entry.body ?? "" };
 }

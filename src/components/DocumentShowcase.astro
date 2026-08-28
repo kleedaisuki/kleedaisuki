@@ -1,0 +1,73 @@
+---
+import type { ShowcaseDocument, ShowcaseVariant } from "../lib/document-showcase";
+import "../styles/showcase.css";
+
+/** @brief 文档展陈组件属性 (Document-showcase component properties)。 */
+interface Props {
+  /** @brief 页面视觉变体 (Page visual variant)。 */
+  variant: ShowcaseVariant;
+  /** @brief 页面眉题 (Page eyebrow)。 */
+  eyebrow: string;
+  /** @brief 页面氛围导语 (Atmospheric page introduction)。 */
+  lede: string;
+  /** @brief 更新时间标签 (Update-date label)。 */
+  updatedLabel: string;
+  /** @brief 已章节化的事实内容 (Sectionized factual content)。 */
+  document: ShowcaseDocument;
+}
+
+/** @brief 展陈页面的全部输入 (All inputs for the showcase page)。 */
+const { variant, eyebrow, lede, updatedLabel, document } = Astro.props;
+---
+
+<article class="showcase" data-variant={variant}>
+  <header class="showcase-hero" data-reveal>
+    <div class="showcase-hero__copy">
+      <p class="eyebrow">{eyebrow}</p>
+      <h1>{document.title}</h1>
+      <p class="showcase-hero__lede">{lede}</p>
+      {document.introHtml && <div class="showcase-hero__source-intro" set:html={document.introHtml} />}
+    </div>
+
+    <div class="showcase-hero__signal" aria-hidden="true">
+      <span class="showcase-hero__orbit"></span>
+      <span class="showcase-hero__core">{variant === "toolkit" ? "//" : "●"}</span>
+    </div>
+
+    <div class="showcase-hero__meta">
+      {document.updated && <p><span>{updatedLabel}</span><strong>{document.updated.replaceAll("-", ".")}</strong></p>}
+      <nav aria-label={document.title}>
+        {document.sections.map((section, index) => (
+          <a href={`#${variant}-${index + 1}`}>{section.title}</a>
+        ))}
+      </nav>
+    </div>
+  </header>
+
+  <div class="showcase-grid">
+    {document.sections.map((section, index) => (
+      <section
+        id={`${variant}-${index + 1}`}
+        class="showcase-section"
+        data-reveal
+        style={`--section-index: "${String(index + 1).padStart(2, "0")}"; --reveal-delay: ${(index % 4) * 45}ms`}
+      >
+        <header class="showcase-section__header">
+          <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+          <h2>{section.title}</h2>
+        </header>
+        {section.html && <div class="showcase-section__body" set:html={section.html} />}
+        {section.items.length > 0 && (
+          <div class="showcase-items">
+            {section.items.map((item) => (
+              <article class="showcase-item">
+                <h3>{item.title}</h3>
+                <div set:html={item.html} />
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+    ))}
+  </div>
+</article>

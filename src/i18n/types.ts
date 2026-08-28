@@ -57,10 +57,12 @@ export interface Messages {
   /** @brief Uses 页面辅助文案 (Uses-page supporting copy)。 */
   uses: {
     eyebrow: string;
+    intro: string;
   };
   /** @brief Now 页面辅助文案 (Now-page supporting copy)。 */
   now: {
     eyebrow: string;
+    intro: string;
   };
   /** @brief Projects 页面文案 (Projects-page copy)。 */
   projects: {
