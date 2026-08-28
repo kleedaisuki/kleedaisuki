@@ -71,7 +71,7 @@ const canonicalUrl = props.canonical
 /** @brief 页面语言替代地址 (Language-alternate URLs for the current page)。 */
 const alternates = page ? alternateUrls(page, siteUrl) : [];
 /** @brief 分享图绝对地址，未传入时使用品牌卡片 (Absolute social image URL, using the brand card by default)。 */
-const socialImage = new URL(props.image ?? "/social-card.svg", siteUrl).toString();
+const socialImage = new URL(props.image ?? "/social-card.png", siteUrl).toString();
 /** @brief 分享图结构化数据标识 (Structured-data identifier for the social image)。 */
 const socialImageId = `${socialImage}#image`;
 /** @brief 当前年份 (Current year)。 */
@@ -82,7 +82,7 @@ const person = {
   "@id": `${new URL("/", siteUrl)}#person`,
   name: SITE.name,
   url: new URL("/", siteUrl).toString(),
-  sameAs: [SITE.githubUrl],
+  sameAs: [SITE.githubUrl, SITE.blogUrl],
 };
 /** @brief 当前文档结构化数据图 (Structured-data graph for the current document)。 */
 const structuredData = {
@@ -161,7 +161,7 @@ const structuredData = {
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={socialImage} />
-    <meta property="og:image:type" content="image/svg+xml" />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content={`${SITE.name} — ${copy.brand.tagline}`} />
