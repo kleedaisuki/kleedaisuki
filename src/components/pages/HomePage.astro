@@ -1,0 +1,101 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import "@styles/home.css";
+import { SITE } from "../../config/site";
+import { getLocalizedDocument } from "../../i18n/content";
+import { getMessages, pagePath, type Locale } from "../../i18n";
+import MarkdownPage from "../MarkdownPage.astro";
+
+/** @brief 本地化首页属性 (Localized home-page properties)。 */
+interface Props {
+  /** @brief 当前页面语言 (Active page locale)。 */
+  locale: Locale;
+}
+
+/** @brief 当前页面语言 (Active page locale)。 */
+const { locale } = Astro.props;
+/** @brief 当前语言的强类型文案 (Strongly typed messages for the active locale)。 */
+const copy = getMessages(locale);
+/** @brief 当前语言的首页元数据 (Home-page metadata for the active locale)。 */
+const metadata = copy.meta.home;
+/** @brief 当前语言的个人资料内容 (Localized profile content)。 */
+const { Content, sourceHref } = await getLocalizedDocument("profile", locale);
+/** @brief 内容源链接的本地化标签 (Localized label for the source link)。 */
+const sourceLabel = locale === "zh" ? "查看源文件" : "View source";
+
+/** @brief 首页重点去向卡片 (Featured home-page destinations)。 */
+const destinations = [
+  {
+    index: "01",
+    title: copy.home.botTitle,
+    description: copy.home.botDescription,
+    href: SITE.botUrl,
+    modifier: "destination--bot",
+  },
+  {
+    index: "02",
+    title: copy.home.blogTitle,
+    description: copy.home.blogDescription,
+    href: SITE.blogUrl,
+    modifier: "destination--blog",
+  },
+] as const;
+---
+
+<BaseLayout
+  locale={locale}
+  page="home"
+  title={metadata.title}
+  description={metadata.description}
+  class="home-page"
+>
+  <div class="home-shell">
+    <section class="home-hero" aria-labelledby="home-title">
+      <div class="home-hero__copy">
+        <p class="eyebrow">{copy.home.eyebrow}</p>
+        <h1 id="home-title">
+          <span class="home-hero__greeting">{copy.home.greeting}</span>
+          <span class="home-hero__headline">{copy.home.headline}</span>
+        </h1>
+        <p class="home-hero__lede">{copy.home.introduction}</p>
+
+        <div class="home-hero__actions" aria-label={copy.home.exploreLabel}>
+          <a class="button" href={SITE.githubUrl}>
+            GitHub <span aria-hidden="true">↗</span>
+          </a>
+          <a class="button button--ghost" href={pagePath("projects", locale)}>
+            {copy.nav.projects}
+          </a>
+        </div>
+      </div>
+
+      <nav class="destinations" aria-label={copy.home.exploreLabel}>
+        {
+          destinations.map((destination) => (
+            <a
+              class:list={["destination", destination.modifier]}
+              href={destination.href}
+              aria-label={`${destination.title} — ${destination.description}`}
+            >
+              <span class="destination__index" aria-hidden="true">{destination.index}</span>
+              <span class="destination__body">
+                <strong>{destination.title}</strong>
+                <small>{destination.description}</small>
+              </span>
+              <span class="destination__arrow" aria-hidden="true">↗</span>
+            </a>
+          ))
+        }
+      </nav>
+    </section>
+
+    <section class="home-profile" aria-label={copy.home.profileLabel}>
+      <MarkdownPage
+        Content={Content}
+        eyebrow={copy.home.profileLabel}
+        sourceHref={sourceHref}
+        sourceLabel={sourceLabel}
+      />
+    </section>
+  </div>
+</BaseLayout>

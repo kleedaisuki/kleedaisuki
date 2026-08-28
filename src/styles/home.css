@@ -1,0 +1,180 @@
+/**
+ * @brief 自适应双语首页样式 (Adaptive bilingual home-page styles)。
+ * @note 布局由内容尺寸驱动，不依赖视口高度；适用于窄桌面、横屏移动端与内置浏览器
+ * (The layout is content-sized without viewport-height forcing, supporting narrow desktops,
+ * landscape mobile screens, and in-app browsers)。
+ */
+
+.home-shell {
+  display: grid;
+  gap: clamp(3.5rem, 9vw, 7rem);
+  min-width: 0;
+  width: 100%;
+}
+
+/** @brief 首页主视觉的内容驱动网格 (Content-driven hero grid)。 */
+.home-hero {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: clamp(2rem, 6vw, 5.5rem);
+  align-items: center;
+  padding-block: clamp(1rem, 5vw, 4.5rem);
+}
+
+.home-hero__copy,
+.home-profile,
+.destinations,
+.destination__body {
+  min-width: 0;
+}
+
+.home-hero h1 {
+  max-width: 15ch;
+  margin: 0.7rem 0 1.35rem;
+  font-size: clamp(3.4rem, 6.5vw, 6rem);
+  line-height: 0.98;
+  letter-spacing: -0.058em;
+  overflow-wrap: anywhere;
+}
+
+html[lang="zh-CN"] .home-hero h1 {
+  max-width: 9.5em;
+  letter-spacing: -0.045em;
+}
+
+.home-hero__headline {
+  color: var(--coral-strong);
+}
+
+.home-hero__lede {
+  max-width: 58ch;
+  margin: 0;
+  color: var(--text-soft);
+  font-size: clamp(1rem, 0.95rem + 0.32vw, 1.2rem);
+  line-height: 1.72;
+  text-wrap: pretty;
+}
+
+.home-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-block-start: clamp(1.5rem, 4vw, 2rem);
+}
+
+/** @brief 重点去向的弹性卡片网格 (Flexible featured-destination card grid)。 */
+.destinations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 0.8rem;
+  align-self: center;
+}
+
+.destination {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: clamp(0.7rem, 2vw, 1rem);
+  align-items: center;
+  min-height: 6.25rem;
+  padding: clamp(1rem, 3vw, 1.25rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-medium);
+  color: inherit;
+  background: var(--surface);
+  box-shadow: var(--shadow-small);
+  text-decoration: none;
+  transition:
+    transform var(--motion-fast) var(--ease),
+    border-color var(--motion-fast) var(--ease),
+    box-shadow var(--motion-fast) var(--ease);
+}
+
+.destination__index,
+.destination__arrow,
+.destination__body small {
+  color: var(--text-soft);
+}
+
+.destination__index {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.destination__body {
+  display: grid;
+  gap: 0.22rem;
+}
+
+.destination__body strong {
+  color: var(--heading);
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.destination__body small {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.destination__arrow {
+  font-size: 1.05rem;
+}
+
+.home-profile {
+  width: min(62rem, 100%);
+}
+
+/** @brief 仅为精确指针提供位移动效 (Motion affordance for fine pointers only)。 */
+@media (hover: hover) and (pointer: fine) {
+  .destination:hover {
+    color: inherit;
+    border-color: var(--coral);
+    box-shadow: 0 1rem 2.5rem color-mix(in srgb, var(--coral) 13%, transparent);
+    transform: translateY(-3px);
+  }
+}
+
+/** @brief 小屏幕下提升按钮与卡片的触控可用性 (Improve controls and cards on small screens)。 */
+@media (max-width: 34rem) {
+  .home-shell {
+    gap: 3.25rem;
+  }
+
+  .home-hero {
+    gap: 1.75rem;
+    padding-block: 0.35rem 1.25rem;
+  }
+
+  .home-hero h1 {
+    max-width: none;
+    font-size: clamp(2.35rem, 12vw, 3.6rem);
+    line-height: 1.02;
+  }
+
+  html[lang="zh-CN"] .home-hero h1 {
+    max-width: none;
+  }
+
+  .home-hero__actions .button {
+    flex: 1 1 9rem;
+  }
+
+  .destination {
+    min-height: 5.75rem;
+  }
+}
+
+/** @brief 短横屏减少非必要垂直留白 (Reduce incidental vertical spacing on short landscape screens)。 */
+@media (max-height: 32rem) and (orientation: landscape) {
+  .home-hero {
+    padding-block: 0.5rem 1.5rem;
+  }
+}
+
+/** @brief 尊重减少动态效果偏好 (Honor reduced-motion preferences)。 */
+@media (prefers-reduced-motion: reduce) {
+  .destination {
+    transition: none;
+  }
+}
