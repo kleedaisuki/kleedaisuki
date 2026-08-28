@@ -1,0 +1,205 @@
+---
+import type { GitHubProject } from "../lib/github";
+
+/**
+ * @brief 项目卡片属性 (project card properties)。
+ */
+interface Props {
+  /** @brief 待展示的规范化项目 (normalized project to display)。 */
+  project: GitHubProject;
+}
+
+/** @brief 当前卡片的项目数据 (project data for this card)。 */
+const { project } = Astro.props;
+
+/** @brief 常见语言的视觉标识颜色 (visual marker colors for common languages)。 */
+const LANGUAGE_COLORS: Readonly<Record<string, string>> = {
+  Astro: "#ff5d01",
+  "C++": "#f34b7d",
+  Cuda: "#76b900",
+  Java: "#b07219",
+  JavaScript: "#f1e05a",
+  Python: "#3572a5",
+  Rust: "#dea584",
+  TeX: "#3d6117",
+  TypeScript: "#3178c6",
+};
+
+/** @brief 当前语言的标识颜色 (marker color for the current language)。 */
+const languageColor = project.language
+  ? (LANGUAGE_COLORS[project.language] ?? "var(--coral)")
+  : "var(--text-soft)";
+---
+
+<article class="project-card">
+  <div class="project-card__heading">
+    <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22">
+      <path d="M4 3.5A2.5 2.5 0 0 1 6.5 1H20v18H6.75A1.75 1.75 0 0 0 5 20.75V21h15v2H4.75A1.75 1.75 0 0 1 3 21.25V5a1.5 1.5 0 0 1 1-1.5ZM6 3v14.06c.24-.04.49-.06.75-.06H18V3H6Z"></path>
+    </svg>
+    <h2>
+      <a href={project.repositoryUrl} target="_blank" rel="noreferrer">
+        {project.name}
+      </a>
+    </h2>
+  </div>
+
+  <p class="project-card__description">
+    {project.description ?? "这个项目正在安静地生长，简介稍后补完。"}
+  </p>
+
+  {project.topics.length > 0 && (
+    <ul class="project-card__topics" aria-label="项目主题">
+      {project.topics.map((topic) => <li>{topic}</li>)}
+    </ul>
+  )}
+
+  <footer class="project-card__footer">
+    <div class="project-card__metrics">
+      {project.language && (
+        <span class="project-card__language" style={`--language-color: ${languageColor}`}>
+          <span class="project-card__language-dot" aria-hidden="true"></span>
+          {project.language}
+        </span>
+      )}
+      <span aria-label={`${project.stars} 个星标`}>★ {project.stars}</span>
+      <span aria-label={`${project.forks} 个分叉`}>⑂ {project.forks}</span>
+    </div>
+
+    {project.homepage && (
+      <a class="project-card__homepage" href={project.homepage} target="_blank" rel="noreferrer">
+        访问主页 <span aria-hidden="true">↗</span>
+      </a>
+    )}
+  </footer>
+</article>
+
+<style>
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 16rem;
+    padding: 1.35rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    background: linear-gradient(145deg, var(--surface-solid), var(--surface-soft));
+    box-shadow: var(--shadow-small);
+    transition: transform var(--motion-base) var(--ease), border-color var(--motion-base) var(--ease), box-shadow var(--motion-base) var(--ease);
+  }
+
+  .project-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--coral);
+    box-shadow: var(--shadow);
+  }
+
+  .project-card__heading {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+
+  .project-card__heading svg {
+    flex: none;
+    fill: var(--coral);
+  }
+
+  .project-card__heading h2 {
+    min-width: 0;
+    margin: 0;
+    font-size: 1.18rem;
+    line-height: 1.3;
+  }
+
+  .project-card__heading a {
+    overflow-wrap: anywhere;
+    color: var(--heading);
+    text-decoration: none;
+  }
+
+  .project-card__heading a:hover {
+    color: var(--coral-strong);
+  }
+
+  .project-card__heading a:focus-visible,
+  .project-card__homepage:focus-visible {
+    border-radius: 0.3rem;
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .project-card__description {
+    margin: 1rem 0;
+    color: var(--text-soft);
+    line-height: 1.65;
+  }
+
+  .project-card__topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0 0 1.15rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project-card__topics li {
+    padding: 0.18rem 0.62rem;
+    border: 1px solid color-mix(in srgb, var(--coral) 22%, transparent);
+    border-radius: 999px;
+    color: var(--coral-strong);
+    background: var(--coral-soft);
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+
+  .project-card__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-soft);
+    font-size: 0.84rem;
+  }
+
+  .project-card__metrics {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .project-card__language {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.38rem;
+  }
+
+  .project-card__language-dot {
+    width: 0.7rem;
+    height: 0.7rem;
+    border: 1px solid color-mix(in srgb, var(--language-color) 72%, #000);
+    border-radius: 50%;
+    background: var(--language-color);
+  }
+
+  .project-card__homepage {
+    color: var(--coral-strong);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .project-card {
+      transition: none;
+    }
+
+    .project-card:hover {
+      transform: none;
+    }
+  }
+</style>

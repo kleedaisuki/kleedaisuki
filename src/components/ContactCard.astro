@@ -1,0 +1,127 @@
+---
+import type { ContactLink } from "../data/contacts";
+
+/**
+ * @brief 联系方式卡片的组件属性。Component properties for a contact card.
+ */
+interface Props {
+  /** @brief 要呈现的联系方式条目。Contact entry to render. */
+  contact: ContactLink;
+}
+
+/** @brief 当前卡片的联系方式数据。Contact data for the current card. */
+const { contact } = Astro.props;
+---
+
+<a class="contact-card" href={contact.href} data-channel={contact.id}>
+  <span class="glyph" aria-hidden="true">{contact.glyph}</span>
+  <span class="content">
+    <span class="title-row">
+      <strong>{contact.label}</strong>
+      <svg class="arrow" viewBox="0 0 20 20" aria-hidden="true">
+        <path d="M5 15 15 5m-7 0h7v7"></path>
+      </svg>
+    </span>
+    <span class="description">{contact.description}</span>
+    <span class="address">{contact.display}</span>
+  </span>
+</a>
+
+<style>
+  .contact-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1rem;
+    min-height: 10rem;
+    padding: 1.25rem;
+    color: var(--text);
+    text-decoration: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-small);
+    transition:
+      transform 180ms ease,
+      border-color 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .contact-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--coral);
+    box-shadow: var(--shadow);
+  }
+
+  .contact-card:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .glyph {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    color: var(--coral-strong);
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    background: var(--coral-soft);
+    border-radius: 0.9rem;
+  }
+
+  .content {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+  }
+
+  .title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  strong {
+    font-size: 1.08rem;
+  }
+
+  .arrow {
+    width: 1.15rem;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.7;
+    transition: transform 180ms ease;
+  }
+
+  .contact-card:hover .arrow {
+    transform: translate(2px, -2px);
+  }
+
+  .description {
+    margin-block: 0.55rem auto;
+    color: var(--text-soft);
+    font-size: 0.94rem;
+    line-height: 1.65;
+  }
+
+  .address {
+    overflow: hidden;
+    color: var(--coral-strong);
+    font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+    font-size: 0.78rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contact-card,
+    .arrow {
+      transition: none;
+    }
+  }
+</style>
