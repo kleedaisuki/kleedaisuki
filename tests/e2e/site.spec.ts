@@ -146,6 +146,20 @@ test("primary navigation and controls remain touch-reachable", async ({ page }) 
   await expectTouchTarget(page.locator("button[data-theme-toggle]"));
 });
 
+test("blog entry points use the Atelier domain", async ({ page }) => {
+  await visitAndVerify(page, "/", "zh-CN");
+  await expect(page.locator("a.destination--blog")).toHaveAttribute(
+    "href",
+    "https://atelier.moesegfault.dev",
+  );
+
+  await visitAndVerify(page, "/contact/", "zh-CN");
+  /** @brief 联系页的 Atelier 博客入口 (Atelier blog entry point on the contact page)。 */
+  const blogContact = page.locator('[data-channel="blog"]');
+  await expect(blogContact).toHaveAttribute("href", "https://atelier.moesegfault.dev/");
+  await expect(blogContact.locator(".address")).toHaveText("atelier.moesegfault.dev");
+});
+
 test("home upgrades its static GitHub profile with live browser data", async ({ page }) => {
   for (const path of ["/", "/en/"] as const) {
     await page.goto(path, { waitUntil: "domcontentloaded" });

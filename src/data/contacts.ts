@@ -59,8 +59,8 @@ export const contacts: readonly ContactLink[] = [
       zh: "阅读技术笔记、研究思考与值得长期保留的文字。",
       en: "Read engineering notes, research thoughts, and writing worth keeping.",
     },
-    href: "https://blog.moesegfault.dev/",
-    display: "blog.moesegfault.dev",
+    href: "https://atelier.moesegfault.dev/",
+    display: "atelier.moesegfault.dev",
     glyph: "BL",
   },
   {

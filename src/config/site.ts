@@ -9,7 +9,7 @@ export const SITE = {
   url: "https://me.moesegfault.dev",
   githubHandle: "kleedaisuki",
   githubUrl: "https://github.com/kleedaisuki",
-  blogUrl: "https://blog.moesegfault.dev",
+  blogUrl: "https://atelier.moesegfault.dev",
   botUrl: "https://bot.moesegfault.dev",
   startYear: 2024,
 } as const;
