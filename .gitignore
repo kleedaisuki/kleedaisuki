@@ -4,4 +4,9 @@ dist/
 .idea/
 .DS_Store
 *.log
+.cache/
+.temp/
+.wrangler/
+.dev.vars*
+!.dev.vars.example
 

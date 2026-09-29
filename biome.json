@@ -1,7 +1,16 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.5.11/schema.json",
   "files": {
-    "includes": ["**", "!dist", "!node_modules", "!.astro"]
+    "includes": [
+      "**",
+      "!dist",
+      "!node_modules",
+      "!.astro",
+      "!.cache",
+      "!.temp",
+      "!.wrangler",
+      "!worker-configuration.d.ts"
+    ]
   },
   "formatter": {
     "enabled": true,

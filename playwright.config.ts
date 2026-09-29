@@ -3,6 +3,9 @@ import { defineConfig, devices } from "@playwright/test";
 /** @brief 本地预览服务器地址 (Local preview-server URL)。 */
 const baseURL = "http://127.0.0.1:4341";
 
+/** Reuse CI's already-verified build to avoid a duplicate GitHub API snapshot fetch. */
+const serverCommand = `${process.env.PLAYWRIGHT_SKIP_BUILD === "1" ? "" : "corepack pnpm build && "}corepack pnpm preview:cloudflare --ip 127.0.0.1 --port 4341`;
+
 /**
  * @brief 微信 Android 风格的用户代理，仅用于近似回归 (WeChat-like Android user agent for approximate regression only)。
  * @note 此配置不是微信真机或其完整 WebView 的替代品 (This is not a substitute for a real WeChat device or its complete WebView)。
@@ -20,16 +23,13 @@ const wechatIosUserAgent =
 /** @brief 跨浏览器与移动端端到端测试配置 (Cross-browser and mobile end-to-end test configuration)。 */
 export default defineConfig({
   testDir: "./tests/e2e",
-  outputDir: "./node_modules/.cache/playwright/test-results",
+  outputDir: "./.cache/playwright/test-results",
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
   ...(process.env.CI ? { workers: 2 } : {}),
   reporter: process.env.CI
-    ? [
-        ["github"],
-        ["html", { open: "never", outputFolder: "./node_modules/.cache/playwright/report" }],
-      ]
+    ? [["github"], ["html", { open: "never", outputFolder: "./.cache/playwright/report" }]]
     : "list",
   use: {
     baseURL,
@@ -37,7 +37,7 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
   webServer: {
-    command: "pnpm build && pnpm preview --host 127.0.0.1 --port 4341",
+    command: serverCommand,
     env: { ASTRO_PREVIEW_BACKGROUND: "0" },
     url: baseURL,
     reuseExistingServer: !process.env.CI,

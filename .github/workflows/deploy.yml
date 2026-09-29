@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy to Cloudflare Workers
 
 on:
   push:
@@ -7,33 +7,51 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: cloudflare-production
   cancel-in-progress: false
 
 jobs:
-  build:
-    name: Build
+  deploy:
+    name: Build, verify, deploy
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Build and upload Pages artifact
-        uses: withastro/action@v6
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Verify Worker binding types
+        run: pnpm exec wrangler types --include-runtime false --check
+      - name: Type-check
+        run: pnpm check
+      - name: Run unit tests
+        run: pnpm test:unit
+      - name: Build static site
+        run: pnpm build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  deploy:
-    name: Deploy
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+      - name: Verify discovery routes
+        run: pnpm verify:discovery
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Smoke-test Cloudflare routing
+        run: pnpm exec playwright test --project=chromium
+        env:
+          PLAYWRIGHT_SKIP_BUILD: "1"
+      - name: Deploy Worker and assets
+        run: pnpm exec wrangler deploy
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

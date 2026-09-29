@@ -40,7 +40,8 @@ const statistics = [
   data-reveal
   data-github-profile
   data-profile-state="static"
-  data-profile-endpoint={`https://api.github.com/users/${encodeURIComponent(profile.login)}`}
+  data-profile-endpoint="/api/github/profile"
+  data-profile-fallback-endpoint={`https://api.github.com/users/${encodeURIComponent(profile.login)}`}
   data-profile-locale={locale === "zh" ? "zh-CN" : "en"}
   data-profile-live-label={copy.githubLive}
   data-profile-static-label={copy.githubSnapshot}

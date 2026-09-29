@@ -1,0 +1,24 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // The Astro build remains static; this Worker owns only same-origin API requests.
+  "name": "me-moesegfault-dev",
+  "main": "./src/worker.ts",
+  "compatibility_date": "2026-09-29",
+  "routes": [
+    {
+      "pattern": "me.moesegfault.dev",
+      "custom_domain": true
+    }
+  ],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash",
+    // API navigation must reach the Worker even when a custom 404 page exists.
+    "run_worker_first": ["/api/*"]
+  },
+  "observability": {
+    "enabled": true
+  }
+}

@@ -254,7 +254,7 @@ function applyLiveProfile(card: HTMLElement, profile: GitHubProfile): void {
  * @note 任意动态错误都会恢复 static 状态且不清空构建期内容 (Any dynamic failure restores the static state without clearing build-time content)。
  */
 async function refreshProfileCard(card: HTMLElement): Promise<void> {
-  /** @brief GitHub 公开资料端点 (Public GitHub profile endpoint)。 */
+  /** @brief 同源边缘资料端点 (Same-origin edge profile endpoint)。 */
   const endpoint = card.dataset.profileEndpoint;
   if (!endpoint) return;
 
@@ -278,14 +278,23 @@ async function refreshProfileCard(card: HTMLElement): Promise<void> {
   /** @brief 动态请求超时计时器 (Dynamic-request timeout timer)。 */
   const timeout = window.setTimeout(() => controller.abort(), PROFILE_REQUEST_TIMEOUT_MS);
   try {
-    /** @brief GitHub 浏览器端响应 (Browser-side GitHub response)。 */
-    const response = await fetch(endpoint, {
-      headers: { Accept: "application/vnd.github+json" },
+    /** @brief 同源 Worker 响应 (Same-origin Worker response)。 */
+    let response = await fetch(endpoint, {
+      headers: { Accept: "application/json" },
       signal: controller.signal,
     });
+    // A shared anonymous Worker egress IP can exhaust GitHub's quota even when
+    // the visitor's own quota remains available. Keep the previous path as a
+    // rate-limit-only compatibility fallback until a Worker secret is provisioned.
+    if (response.status === 429 && card.dataset.profileFallbackEndpoint) {
+      response = await fetch(card.dataset.profileFallbackEndpoint, {
+        headers: { Accept: "application/vnd.github+json" },
+        signal: controller.signal,
+      });
+    }
     if (!response.ok) {
       if (response.status === 403 || response.status === 429) markRateLimitedSession();
-      throw new Error(`GitHub REST returned ${response.status}`);
+      throw new Error(`Profile endpoint returned ${response.status}`);
     }
     /** @brief GitHub REST 原始动态响应 (Raw live GitHub REST payload)。 */
     const payload: unknown = await response.json();

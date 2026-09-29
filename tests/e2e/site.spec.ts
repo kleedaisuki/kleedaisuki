@@ -47,7 +47,7 @@ const liveGitHubProfile = {
 } as const;
 
 test.beforeEach(async ({ page }) => {
-  await page.route("https://api.github.com/users/kleedaisuki", async (route) => {
+  await page.route("**/api/github/profile", async (route) => {
     await route.fulfill({ status: 200, contentType: "application/json", json: liveGitHubProfile });
   });
 });
@@ -135,6 +135,18 @@ for (const route of routePairs) {
   });
 }
 
+test("Worker API rejects unsupported methods and unknown API routes", async ({ request }) => {
+  /** @brief 资料端点仅接受 GET (The profile endpoint accepts only GET)。 */
+  const unsupportedMethod = await request.post("/api/github/profile");
+  expect(unsupportedMethod.status()).toBe(405);
+  expect(unsupportedMethod.headers().allow).toBe("GET");
+
+  /** @brief 未定义的 API 路径不能回退为 HTML 页面 (Unknown API paths must not fall back to HTML)。 */
+  const unknownRoute = await request.get("/api/not-a-route");
+  expect(unknownRoute.status()).toBe(404);
+  expect(unknownRoute.headers()["content-type"]).toMatch(/application\/json/i);
+});
+
 test("primary navigation and controls remain touch-reachable", async ({ page }) => {
   await visitAndVerify(page, "/", "zh-CN");
 
@@ -162,7 +174,16 @@ test("blog entry points use the Atelier domain", async ({ page }) => {
 
 test("home upgrades its static GitHub profile with live browser data", async ({ page }) => {
   for (const path of ["/", "/en/"] as const) {
+    /** @brief 首次访问必须查询本站 Worker 端点；同一会话的第二页可命中浏览器缓存 (The first visit must use the same-origin Worker endpoint; the second may reuse the browser session cache)。 */
+    const profileRequest =
+      path === "/"
+        ? page.waitForRequest((request) => request.url().endsWith("/api/github/profile"))
+        : null;
     await page.goto(path, { waitUntil: "domcontentloaded" });
+    if (profileRequest) {
+      const request = await profileRequest;
+      expect(new URL(request.url()).origin).toBe(new URL(page.url()).origin);
+    }
     /** @brief 由静态基线升级的 GitHub 资料卡 (GitHub profile card upgraded from its static baseline)。 */
     const profile = page.locator(".github-profile");
     await expect(profile).toBeVisible();
@@ -187,8 +208,42 @@ test("home upgrades its static GitHub profile with live browser data", async ({ 
   }
 });
 
-test("home keeps the build-time GitHub profile when the live request fails", async ({ page }) => {
+test("home falls back to public GitHub REST when the Worker is rate limited", async ({ page }) => {
+  /** A shared edge quota must not suppress the pre-existing browser enhancement. */
+  await page.route("**/api/github/profile", async (route) => {
+    await route.fulfill({
+      status: 429,
+      contentType: "application/json",
+      json: { error: "Limited" },
+    });
+  });
+  let directRequests = 0;
   await page.route("https://api.github.com/users/kleedaisuki", async (route) => {
+    directRequests += 1;
+    await route.fulfill({ status: 200, contentType: "application/json", json: liveGitHubProfile });
+  });
+
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  const profile = page.locator(".github-profile");
+  await expect(profile).toHaveAttribute("data-profile-state", "live");
+  await expect(profile.locator("[data-profile-name]")).toHaveText("MoeSegFault Live");
+  expect(directRequests).toBe(1);
+});
+
+test("home does not query cross-origin GitHub REST when the Worker succeeds", async ({ page }) => {
+  let directRequests = 0;
+  await page.route("https://api.github.com/users/kleedaisuki", async (route) => {
+    directRequests += 1;
+    await route.abort("failed");
+  });
+
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator(".github-profile")).toHaveAttribute("data-profile-state", "live");
+  expect(directRequests).toBe(0);
+});
+
+test("home keeps the build-time GitHub profile when the live request fails", async ({ page }) => {
+  await page.route("**/api/github/profile", async (route) => {
     await route.abort("failed");
   });
   await page.goto("/", { waitUntil: "domcontentloaded" });
@@ -208,7 +263,7 @@ test("home keeps the build-time GitHub profile when the live request fails", asy
 test("home restores its static state when a live avatar cannot load", async ({ page }) => {
   /** @brief 用于覆盖预加载路径的不可用头像地址 (Unavailable avatar URL used to exercise the preload path)。 */
   const unavailableAvatar = "https://avatars.githubusercontent.com/u/profile-refresh-test";
-  await page.route("https://api.github.com/users/kleedaisuki", async (route) => {
+  await page.route("**/api/github/profile", async (route) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",

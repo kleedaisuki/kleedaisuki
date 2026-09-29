@@ -198,7 +198,7 @@ async function verify(outputDir) {
     const html = await readFile(routeFile(outputDir, pathname), "utf8");
     for (const href of [
       "https://github.com/kleedaisuki",
-      "https://blog.moesegfault.dev",
+      "https://atelier.moesegfault.dev",
       "https://bot.moesegfault.dev",
     ]) {
       assert.ok(html.includes(`href="${href}"`), `${pathname} must link to ${href}`);
@@ -206,10 +206,10 @@ async function verify(outputDir) {
   }
 
   /** @brief 站点级发现文件与 sitemap 内容 (Site-wide discovery files and sitemap content)。 */
-  const [robots, llms, cname, sitemap] = await Promise.all([
+  const [robots, llms, outputFiles, sitemap] = await Promise.all([
     readFile(join(outputDir, "robots.txt"), "utf8"),
     readFile(join(outputDir, "llms.txt"), "utf8"),
-    readFile(join(outputDir, "CNAME"), "utf8"),
+    readdir(outputDir),
     readSitemaps(outputDir),
   ]);
 
@@ -219,7 +219,10 @@ async function verify(outputDir) {
     robots.includes(`${siteUrl}/sitemap-index.xml`),
     "robots.txt must advertise the sitemap index",
   );
-  assert.equal(cname.trim(), "me.moesegfault.dev", "CNAME must contain the custom domain");
+  assert.ok(
+    !outputFiles.includes("CNAME"),
+    "Cloudflare assets must not include the GitHub Pages CNAME file",
+  );
   assert.match(llms, /experimental/iu, "llms.txt must identify its experimental status");
   assert.match(
     llms,
@@ -236,7 +239,7 @@ async function verify(outputDir) {
 
   for (const href of [
     "https://github.com/kleedaisuki",
-    "https://blog.moesegfault.dev",
+    "https://atelier.moesegfault.dev",
     "https://bot.moesegfault.dev",
     "https://github.com/kleedaisuki/kleedaisuki/blob/main/README.md",
     "https://github.com/kleedaisuki/kleedaisuki/blob/main/docs/uses.md",
