@@ -39,7 +39,7 @@ export async function getLocalizedDocument(
   locale: Locale,
 ): Promise<LocalizedDocument> {
   if (documentId === "profile" && locale === "zh") {
-    const entry = requireEntry(await getCollection("profile"), "README");
+    const entry = requireEntry(await getCollection("profile"), "zh");
     const { Content } = await render(entry);
     return { Content, markdown: entry.body ?? "" };
   }

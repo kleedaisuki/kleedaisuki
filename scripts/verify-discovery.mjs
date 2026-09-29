@@ -196,6 +196,12 @@ async function verify(outputDir) {
   for (const pathname of ["/", "/en/"]) {
     /** @brief 当前首页的 HTML 构建产物 (Built HTML for the current home page)。 */
     const html = await readFile(routeFile(outputDir, pathname), "utf8");
+    /** Maintainer-only deployment text must never leak into the public profile. */
+    assert.doesNotMatch(
+      visibleText(html),
+      /Cloudflare Workers 部署|CLOUDFLARE_API_TOKEN|pnpm install --frozen-lockfile/iu,
+      `${pathname} must not render maintainer deployment instructions`,
+    );
     for (const href of [
       "https://github.com/kleedaisuki",
       "https://atelier.moesegfault.dev",

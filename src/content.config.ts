@@ -2,12 +2,12 @@ import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 
 /**
- * @brief GitHub 个人资料内容集合 / GitHub profile content collection.
- * @note 直接读取仓库根目录的 README.md，使网站与 GitHub Profile 共用唯一内容源。
- *       Reads the repository-root README.md so the website and GitHub Profile share one source.
+ * @brief Public home-page profile content collection.
+ * @note Keep the site's profile independent of the user-owned repository README.
+ *       Maintainer instructions in README must never be rendered on the public home page.
  */
 const profile = defineCollection({
-  loader: glob({ base: ".", pattern: "README.md" }),
+  loader: glob({ base: "./src/content/profile", pattern: "*.md" }),
 });
 
 /**
@@ -21,8 +21,8 @@ const docs = defineCollection({
 
 /**
  * @brief 本地化 Markdown 侧车集合 / Localized Markdown sidecar collection.
- * @note 侧车仅承载翻译，原始 README 与 docs 文档仍是各自语言的权威内容源。
- *       Sidecars contain translations only; README and docs remain authoritative in their source language.
+ * @note Sidecars contain locale counterparts: English profile text and Chinese versions
+ *       of the English uses/now documents. They do not own the primary source files.
  */
 const translations = defineCollection({
   loader: glob({ base: "./src/content/translations", pattern: "*.md" }),
