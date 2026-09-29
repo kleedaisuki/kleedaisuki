@@ -1,36 +1,55 @@
 import type { Locale } from "../i18n";
 
-/** @brief 双语文本值 (Bilingual text value)。 */
+/** Bilingual text shared by public contact and platform links. */
 export type LocalizedText = Readonly<Record<Locale, string>>;
 
 /**
- * @brief 联系方式条目的数据模型 (Contact-channel data model)。
- * @note 渠道身份与双语文案位于同一条记录中，避免两套列表发生顺序或链接漂移 (Channel identity and bilingual copy live in one record to prevent ordering or URL drift between locale-specific lists)。
+ * Shared presentation fields for a public destination.
+ * Keeping both locales in each record prevents link and ordering drift.
  */
-export interface ContactLink {
-  /** @brief 稳定标识符，用于列表键与样式钩子 (Stable identifier for list keys and style hooks)。 */
-  readonly id: "github" | "me" | "blog" | "bot";
-  /** @brief 面向访客的双语渠道名称 (Localized visitor-facing channel name)。 */
+interface LinkDetails {
+  /** Visitor-facing name in both supported languages. */
   readonly label: LocalizedText;
-  /** @brief 该渠道用途的双语说明 (Localized description of the channel purpose)。 */
+  /** Short visitor-facing explanation in both languages. */
   readonly description: LocalizedText;
-  /** @brief 渠道的规范链接 (Canonical URL for the channel)。 */
+  /** Canonical HTTPS destination. */
   readonly href: string;
-  /** @brief 卡片中展示的紧凑地址 (Compact address displayed in the card)。 */
+  /** Compact hostname shown on the card. */
   readonly display: string;
-  /** @brief 纯装饰的渠道字形 (Decorative channel glyph)。 */
+  /** Decorative two-letter glyph. */
   readonly glyph: string;
-  /** @brief 是否为推荐的首选联系方式 (Whether this is the preferred contact channel)。 */
+  /** Whether this is the recommended primary contact channel. */
   readonly preferred?: boolean;
 }
 
 /**
- * @brief MoeSegFault 公开入口的唯一数据源 (Single source of truth for MoeSegFault's public entry points)。
- * @note 新增真实渠道只需追加一项，同时填写中英文文案；不要为每种语言建立独立列表 (Add a verified channel by appending one item with both locales; do not create per-locale lists)。
+ * A link for finding or contacting MoeSegFault, not a product landing page.
+ */
+export interface ContactLink extends LinkDetails {
+  /** Stable contact identity and styling hook. */
+  readonly id: "github" | "me" | "blog" | "bot";
+  /** Discriminator used for accessible action text and card attributes. */
+  readonly kind: "contact";
+}
+
+/** A user-confirmed public product or design-system landing page. */
+export interface PlatformLink extends LinkDetails {
+  /** Stable platform identity and styling hook. */
+  readonly id: "same" | "scrap" | "xmlsquish" | "style";
+  /** Discriminator used for accessible action text and card attributes. */
+  readonly kind: "platform";
+}
+
+/** Every destination the contact page can render. */
+export type PublicLink = ContactLink | PlatformLink;
+
+/**
+ * MoeSegFault's existing contact destinations; their links remain unchanged.
  */
 export const contacts: readonly ContactLink[] = [
   {
     id: "github",
+    kind: "contact",
     label: { zh: "GitHub", en: "GitHub" },
     description: {
       zh: "查看 MoeSegFault 的代码、开源项目与开发动态。",
@@ -43,6 +62,7 @@ export const contacts: readonly ContactLink[] = [
   },
   {
     id: "me",
+    kind: "contact",
     label: { zh: "个人主页", en: "Personal home" },
     description: {
       zh: "了解 MoeSegFault、最近在做的事情与公开作品。",
@@ -54,6 +74,7 @@ export const contacts: readonly ContactLink[] = [
   },
   {
     id: "blog",
+    kind: "contact",
     label: { zh: "博客", en: "Blog" },
     description: {
       zh: "阅读技术笔记、研究思考与值得长期保留的文字。",
@@ -65,6 +86,7 @@ export const contacts: readonly ContactLink[] = [
   },
   {
     id: "bot",
+    kind: "contact",
     label: { zh: "FOGMOE Bot", en: "FOGMOE Bot" },
     description: {
       zh: "访问 MoeSegFault 的社区机器人与相关服务。",
@@ -73,5 +95,60 @@ export const contacts: readonly ContactLink[] = [
     href: "https://bot.moesegfault.dev/",
     display: "bot.moesegfault.dev",
     glyph: "BT",
+  },
+] as const;
+
+/**
+ * Public platforms confirmed by the owner from the current domain inventory.
+ * The retired PromptR site and infrastructure-only hostnames are deliberately absent.
+ */
+export const platforms: readonly PlatformLink[] = [
+  {
+    id: "same",
+    kind: "platform",
+    label: { zh: "same", en: "same" },
+    description: {
+      zh: "准确找出本地真正相同的文件，整理重复内容。",
+      en: "Find truly identical local files and make duplicate cleanup easier.",
+    },
+    href: "https://same.moesegfault.dev/",
+    display: "same.moesegfault.dev",
+    glyph: "SA",
+  },
+  {
+    id: "scrap",
+    kind: "platform",
+    label: { zh: "scrap", en: "scrap" },
+    description: {
+      zh: "本地优先的秘密与字段存储，连接桌面应用和命令行。",
+      en: "Local-first secrets and field storage across a desktop app and CLI.",
+    },
+    href: "https://scrap.moesegfault.dev/",
+    display: "scrap.moesegfault.dev",
+    glyph: "SC",
+  },
+  {
+    id: "xmlsquish",
+    kind: "platform",
+    label: { zh: "xmlsquish", en: "xmlsquish" },
+    description: {
+      zh: "创建、格式化并构建多文件 XML 提示词项目。",
+      en: "Create, format, and build multi-file XML prompt projects.",
+    },
+    href: "https://xmlsquish.moesegfault.dev/",
+    display: "xmlsquish.moesegfault.dev",
+    glyph: "XS",
+  },
+  {
+    id: "style",
+    kind: "platform",
+    label: { zh: "MoeSegFault Style", en: "MoeSegFault Style" },
+    description: {
+      zh: "面向 TypeScript、React 与 Astro 的暖纸编辑风格设计系统。",
+      en: "A warm editorial design system for TypeScript, React, and Astro.",
+    },
+    href: "https://style.moesegfault.dev/",
+    display: "style.moesegfault.dev",
+    glyph: "ST",
   },
 ] as const;

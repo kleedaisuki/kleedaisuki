@@ -1,11 +1,11 @@
 ---
-import type { ContactLink } from "../data/contacts";
+import type { PublicLink } from "../data/contacts";
 import { getMessages, type Locale } from "../i18n";
 
-/** @brief 联系方式卡片的组件属性 (Component properties for a contact card)。 */
+/** Public-destination card properties for contacts and platforms. */
 interface Props {
-  /** @brief 要呈现的联系方式条目 (Contact entry to render)。 */
-  contact: ContactLink;
+  /** Public destination to render. */
+  contact: PublicLink;
   /** @brief 当前页面语言 (Active page locale)。 */
   locale: Locale;
 }
@@ -18,14 +18,17 @@ const t = getMessages(locale);
 const label = contact.label[locale];
 /** @brief 当前语言的渠道说明 (Localized channel description)。 */
 const description = contact.description[locale];
-/** @brief 链接的完整无障碍名称 (Complete accessible name for the link)。 */
-const accessibleLabel = `${t.contact.openLink}: ${label} — ${contact.display}`;
+/** Distinguish a platform visit from a contact action for assistive technology. */
+const actionLabel = contact.kind === "platform" ? t.contact.openPlatform : t.contact.openLink;
+/** Complete accessible name for the link. */
+const accessibleLabel = `${actionLabel}: ${label} — ${contact.display}`;
 ---
 
 <a
   class="contact-card"
   href={contact.href}
-  data-channel={contact.id}
+  data-channel={contact.kind === "contact" ? contact.id : undefined}
+  data-platform={contact.kind === "platform" ? contact.id : undefined}
   aria-label={accessibleLabel}
 >
   <span class="glyph" aria-hidden="true">{contact.glyph}</span>

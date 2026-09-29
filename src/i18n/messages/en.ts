@@ -28,7 +28,7 @@ export const en = {
     },
     contact: {
       title: "Contact",
-      description: "Public channels and community identities for reaching MoeSegFault.",
+      description: "Reach MoeSegFault and explore public tools and platforms.",
     },
   },
   nav: { home: "Home", uses: "Uses", now: "Now", projects: "Projects", contact: "Contact" },
@@ -94,6 +94,9 @@ export const en = {
     intro: "Choose the channel that suits you. This data-driven list can grow over time.",
     preferred: "Preferred",
     openLink: "Open contact method",
+    platformsTitle: "Public platforms",
+    platformsIntro: "Tools and interface experiments that are open to explore.",
+    openPlatform: "Visit platform",
   },
   notFound: {
     title: "There is no page here yet",

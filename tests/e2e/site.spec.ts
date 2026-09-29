@@ -172,6 +172,30 @@ test("blog entry points use the Atelier domain", async ({ page }) => {
   await expect(blogContact.locator(".address")).toHaveText("atelier.moesegfault.dev");
 });
 
+test("contact pages separate confirmed public platforms from contact channels", async ({
+  page,
+}) => {
+  /** User-confirmed public platforms; retired PromptR and infrastructure stay out. */
+  const expectedPlatforms = ["same", "scrap", "xmlsquish", "style"] as const;
+  for (const path of ["/contact/", "/en/contact/"] as const) {
+    await page.goto(path, { waitUntil: "domcontentloaded" });
+    const cards = page.locator(".platforms [data-platform]");
+    await expect(cards).toHaveCount(expectedPlatforms.length);
+    for (const id of expectedPlatforms) {
+      await expect(page.locator(`[data-platform="${id}"]`)).toHaveAttribute(
+        "href",
+        `https://${id}.moesegfault.dev/`,
+      );
+    }
+    await expect(page.locator(".platforms [data-platform='promptr']")).toHaveCount(0);
+    await expect(page.locator(".platforms [data-platform='status']")).toHaveCount(0);
+    await expect(page.locator('[data-channel="bot"]')).toHaveAttribute(
+      "href",
+      "https://bot.moesegfault.dev/",
+    );
+  }
+});
+
 test("home upgrades its static GitHub profile with live browser data", async ({ page }) => {
   for (const path of ["/", "/en/"] as const) {
     /** @brief 首次访问必须查询本站 Worker 端点；同一会话的第二页可命中浏览器缓存 (The first visit must use the same-origin Worker endpoint; the second may reuse the browser session cache)。 */

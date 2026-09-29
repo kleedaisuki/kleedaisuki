@@ -1,6 +1,6 @@
 ---
 import ContactCard from "@components/ContactCard.astro";
-import { contacts } from "@data/contacts";
+import { contacts, platforms } from "@data/contacts";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { getMessages, type Locale } from "../../i18n";
 
@@ -14,8 +14,9 @@ interface Props {
 const { locale } = Astro.props;
 /** @brief 当前语言的站点文案 (Site messages for the active locale)。 */
 const t = getMessages(locale);
-/** @brief 联系方式列表的无障碍名称 (Accessible name for the contact-channel list)。 */
-const listLabel = `${t.meta.contact.title}: ${t.contact.intro}`;
+/** Accessible names for the two distinct destination groups. */
+const contactListLabel = `${t.meta.contact.title}: ${t.contact.intro}`;
+const platformListLabel = `${t.contact.platformsTitle}: ${t.contact.platformsIntro}`;
 ---
 
 <BaseLayout {locale} page="contact">
@@ -26,7 +27,7 @@ const listLabel = `${t.meta.contact.title}: ${t.contact.intro}`;
       <p class="lede">{t.contact.intro}</p>
     </header>
 
-    <ul class="contact-grid" aria-label={listLabel}>
+    <ul class="contact-grid" aria-label={contactListLabel}>
       {
         contacts.map((contact) => (
           <li>
@@ -35,6 +36,20 @@ const listLabel = `${t.meta.contact.title}: ${t.contact.intro}`;
         ))
       }
     </ul>
+
+    <section class="platforms" aria-labelledby="platforms-title">
+      <h2 id="platforms-title">{t.contact.platformsTitle}</h2>
+      <p>{t.contact.platformsIntro}</p>
+      <ul class="contact-grid" aria-label={platformListLabel}>
+        {
+          platforms.map((platform) => (
+            <li>
+              <ContactCard contact={platform} {locale} />
+            </li>
+          ))
+        }
+      </ul>
+    </section>
   </article>
 </BaseLayout>
 
@@ -97,6 +112,24 @@ const listLabel = `${t.meta.contact.title}: ${t.contact.intro}`;
 
   .contact-grid li > :global(.contact-card) {
     height: 100%;
+  }
+
+  .platforms {
+    margin-block-start: clamp(3rem, 7vw, 5rem);
+  }
+
+  .platforms h2 {
+    margin: 0;
+    color: var(--heading);
+    font-size: clamp(1.5rem, 4vw, 2.1rem);
+    letter-spacing: -0.03em;
+  }
+
+  .platforms > p {
+    max-width: 43rem;
+    margin: 0.65rem 0 1.5rem;
+    color: var(--text-soft);
+    line-height: 1.7;
   }
 
   @media (max-width: 44rem) {

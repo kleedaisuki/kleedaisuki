@@ -87,10 +87,20 @@ export interface Messages {
   };
   /** @brief Contact 页面文案 (Contact-page copy)。 */
   contact: {
+    /** Introductory label above the page title. */
     eyebrow: string;
+    /** Guidance for choosing an existing contact channel. */
     intro: string;
+    /** Badge on the recommended contact channel. */
     preferred: string;
+    /** Accessible action label for a contact channel. */
     openLink: string;
+    /** Heading for owner-confirmed public platforms. */
+    platformsTitle: string;
+    /** Short explanation of the platform list. */
+    platformsIntro: string;
+    /** Accessible action label for a platform destination. */
+    openPlatform: string;
   };
   /** @brief 未找到页面文案 (Not-found page copy)。 */
   notFound: {

@@ -16,7 +16,7 @@ export const zh = {
     uses: { title: "工具", description: "MoeSegFault 日常使用的硬件、软件与开发工具。" },
     now: { title: "近况", description: "MoeSegFault 最近关注、学习和推进的事情。" },
     projects: { title: "项目", description: "MoeSegFault 的开源项目、系统实验与仍在生长的想法。" },
-    contact: { title: "联系", description: "联系 MoeSegFault 的公开渠道与社区身份。" },
+    contact: { title: "联系", description: "联系 MoeSegFault，探索公开工具与平台。" },
   },
   nav: { home: "首页", uses: "工具", now: "近况", projects: "项目", contact: "联系" },
   common: {
@@ -79,6 +79,9 @@ export const zh = {
     intro: "选择适合你的渠道；这个列表由数据驱动，未来会继续扩展。",
     preferred: "推荐",
     openLink: "打开联系方式",
+    platformsTitle: "公开平台",
+    platformsIntro: "这些是已经开放访问的工具与界面实验。",
+    openPlatform: "访问平台",
   },
   notFound: {
     title: "这里暂时没有页面",
