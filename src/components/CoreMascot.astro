@@ -1,0 +1,91 @@
+---
+import { type Cell, tonePaths } from "../pixel/cell";
+import { CORE_CROWN, CORE_HEIGHT, CORE_WIDTH, coreBody, faceOnly, type Mood } from "../pixel/core";
+
+interface Props {
+  mood: Mood;
+  class?: string;
+}
+
+const { mood, class: className } = Astro.props;
+const clover = coreBody.filter(({ row }) => row < CORE_CROWN);
+const chip = coreBody.filter(({ row }) => row >= CORE_CROWN);
+/** Touching Core always changes its face, even when it was already pleased. */
+const pleased: Mood = mood === "glad" ? "starry" : "glad";
+const layers: readonly { name: string; cells: readonly Cell[] }[] = [
+  { name: "clover", cells: clover },
+  { name: "chip", cells: chip },
+  { name: "rest", cells: faceOnly(mood) },
+  { name: "hover", cells: faceOnly(pleased) },
+  { name: "press", cells: faceOnly("wince") },
+];
+---
+
+<svg
+  class:list={["core", className]}
+  viewBox={`0 0 ${CORE_WIDTH} ${CORE_HEIGHT}`}
+  aria-hidden="true"
+  focusable="false"
+>
+  <g class="core__body">
+    {
+      layers.map(({ name, cells }) => (
+        <g class={`core__${name}`}>
+          {tonePaths(cells).map(({ tone, d }) => <path style={`fill:var(--px-${tone})`} {d} />)}
+        </g>
+      ))
+    }
+  </g>
+</svg>
+
+<style define:vars={{ crown: `${CORE_CROWN}px` }}>
+  .core {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    cursor: grab;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .core:active {
+    cursor: grabbing;
+  }
+  .core g {
+    transform-box: view-box;
+  }
+  .core__body {
+    transform-origin: 50% 100%;
+    transition:
+      translate var(--moe-bounce),
+      scale var(--moe-bounce);
+  }
+  .core__clover {
+    transform-origin: 50% var(--crown);
+    transition: rotate var(--moe-bounce);
+  }
+  .core__hover,
+  .core__press,
+  .core:is(:hover, :active) .core__rest {
+    visibility: hidden;
+  }
+  .core:hover:not(:active) .core__hover,
+  .core:active .core__press {
+    visibility: visible;
+  }
+  /* It hops when noticed and squashes when pressed; the clover is the last part to follow. */
+  .core:hover .core__body {
+    translate: 0 -1px;
+  }
+  .core:hover .core__clover {
+    rotate: 8deg;
+  }
+  .core:active .core__body {
+    scale: 1.07 0.86;
+    translate: 0 0;
+    transition-duration: 90ms;
+  }
+  .core:active .core__clover {
+    rotate: -6deg;
+  }
+</style>

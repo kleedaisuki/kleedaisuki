@@ -1,0 +1,57 @@
+---
+interface Props {
+  id: string;
+  title: string;
+  class?: string | undefined;
+}
+
+const { id, title, class: className } = Astro.props;
+---
+
+<section class:list={["rail", className]} aria-labelledby={id}>
+  <header class="rail__label">
+    <h2 {id}>{title}</h2>
+  </header>
+  <div class="rail__body">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .rail {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    border-block-end: 1px solid var(--moe-line);
+  }
+  .rail__label {
+    padding: clamp(1.75rem, 3vw, 2.5rem) var(--moe-space-5) clamp(1.75rem, 3vw, 2.5rem)
+      var(--site-gutter);
+    border-inline-end: 1px solid var(--moe-line);
+  }
+  .rail h2 {
+    position: sticky;
+    top: calc(var(--site-header) + clamp(1.75rem, 3vw, 2.5rem));
+    margin: 0;
+    font-size: clamp(1.25rem, 2vw, 1.5rem);
+    letter-spacing: -0.02em;
+  }
+  .rail__body {
+    min-width: 0;
+    padding: clamp(1.75rem, 3vw, 2.5rem) var(--site-gutter);
+  }
+  @media (max-width: 52rem) {
+    .rail {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .rail__label {
+      padding-block-end: 0;
+      border-inline-end: 0;
+    }
+    .rail h2 {
+      position: static;
+    }
+    .rail__body {
+      padding-block-start: var(--moe-space-5);
+    }
+  }
+</style>

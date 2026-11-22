@@ -1,0 +1,125 @@
+---
+import Icon from "@moesegfault/style/astro/Icon.astro";
+import { SITE } from "../config/site";
+import { getMessages, type Locale, pagePath } from "../i18n";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const copy = getMessages(locale);
+
+/**
+ * The site as a process map. Permissions are the joke and the truth: projects execute, "now" is
+ * rewritten, "uses" is read-only, and sibling sites are shared mappings.
+ */
+const segments = [
+  { id: "projects", mode: "r-xp", href: pagePath("projects", locale), title: copy.nav.projects },
+  { id: "now", mode: "rw-p", href: pagePath("now", locale), title: copy.nav.now },
+  { id: "uses", mode: "r--p", href: pagePath("uses", locale), title: copy.nav.uses },
+  { id: "contact", mode: "rw-s", href: pagePath("contact", locale), title: copy.nav.contact },
+  { id: "blog", mode: "r-xs", href: SITE.blogUrl, title: copy.home.blogTitle },
+  { id: "bot", mode: "rwxs", href: SITE.botUrl, title: copy.home.botTitle },
+];
+---
+
+<nav class="maps moe-panel" aria-label={copy.home.exploreLabel}>
+  {
+    segments.map(({ id, mode, href, title }) => (
+      <a class:list={["destination", `destination--${id}`]} {href}>
+        <span class="destination__mode" aria-hidden="true">
+          {[...mode].map((bit, index) => (
+            <i data-set={bit !== "-" || undefined} style={`--bit:${index}`}>{bit}</i>
+          ))}
+        </span>
+        <Icon name={href.startsWith("/") ? "arrow-right" : "arrow-up-right"} size={18} />
+        <strong>{title}</strong>
+      </a>
+    ))
+  }
+</nav>
+
+<style>
+  .maps {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .destination {
+    display: grid;
+    min-height: 8.5rem;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto 1fr;
+    padding: var(--moe-space-5);
+    color: inherit;
+    text-decoration: none;
+    box-shadow:
+      1px 0 0 var(--moe-line),
+      0 1px 0 var(--moe-line);
+    transition: background-color var(--moe-motion-fast) var(--moe-motion-ease-standard);
+  }
+  .destination:is(:hover, :focus-visible) {
+    background: var(--moe-surface-sunken);
+  }
+  .destination:focus-visible {
+    z-index: 1;
+    outline-offset: -3px;
+  }
+  .destination strong {
+    grid-column: 1 / -1;
+    align-self: end;
+    color: var(--moe-heading);
+    font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    transform-origin: 0 100%;
+    transition: scale var(--moe-spring);
+  }
+  .destination:active strong {
+    scale: var(--moe-press);
+    transition-duration: 60ms;
+  }
+  .destination__mode {
+    display: inline-grid;
+    grid-template-columns: repeat(4, 1.375rem);
+    justify-self: start;
+    color: var(--moe-text-soft);
+    font-family: var(--moe-font-family-mono);
+    font-size: var(--moe-font-size-xs);
+  }
+  .destination__mode i {
+    display: grid;
+    height: 1.375rem;
+    place-items: center;
+    box-shadow: inset 0 0 0 1px var(--moe-line);
+    font-style: normal;
+    transition:
+      translate var(--moe-bounce),
+      border-radius var(--moe-bounce);
+    transition-delay: calc(var(--bit) * 35ms);
+  }
+  .destination__mode i[data-set] {
+    color: var(--moe-on-highlight);
+    background: var(--moe-highlight);
+  }
+  /* Only the bits that are set answer, one after another. */
+  .destination:is(:hover, :focus-visible) i[data-set] {
+    border-radius: var(--moe-radius-xs);
+    translate: 0 -4px;
+  }
+  .destination :global(.moe-icon) {
+    color: var(--moe-text-soft);
+    transition:
+      translate var(--moe-spring),
+      color var(--moe-motion-fast) var(--moe-motion-ease-standard);
+  }
+  .destination:is(:hover, :focus-visible) :global(.moe-icon) {
+    color: var(--moe-accent-strong);
+  }
+  .destination:is(:hover, :focus-visible) :global(.moe-icon--arrow-right) {
+    translate: 0.25em;
+  }
+  .destination:is(:hover, :focus-visible) :global(.moe-icon--arrow-up-right) {
+    translate: 0.2em -0.2em;
+  }
+</style>

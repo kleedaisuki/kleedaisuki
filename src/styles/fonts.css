@@ -1,26 +1,3 @@
+/* Geist has no Han glyphs. These subset faces load per unicode range. */
 @import "@fontsource/noto-sans-sc/400.css";
-@import "@fontsource/noto-sans-sc/700.css";
-
-/** @brief Atkinson 正文字体 (Atkinson body typeface)。 */
-@font-face {
-  font-family: "Atkinson Hyperlegible";
-  src:
-    local("Atkinson Hyperlegible Regular"),
-    local("Atkinson Hyperlegible"),
-    url("/fonts/atkinson-regular.woff") format("woff");
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-}
-
-/** @brief Atkinson 粗体 (Atkinson bold typeface)。 */
-@font-face {
-  font-family: "Atkinson Hyperlegible";
-  src:
-    local("Atkinson Hyperlegible Bold"),
-    local("Atkinson Hyperlegible"),
-    url("/fonts/atkinson-bold.woff") format("woff");
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-}
+@import "@fontsource/noto-sans-sc/600.css";

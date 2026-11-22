@@ -36,15 +36,12 @@ export interface Messages {
     switchToDark: string;
     lightTheme: string;
     darkTheme: string;
-    builtWith: string;
     updated: string;
     visit: string;
     readMore: string;
   };
   /** @brief 首页专用文案 (Home-page copy)。 */
   home: {
-    eyebrow: string;
-    greeting: string;
     headline: string;
     introduction: string;
     githubProfileLabel: string;
@@ -53,30 +50,17 @@ export interface Messages {
     repositories: string;
     followers: string;
     following: string;
-    joinedGitHub: string;
+    /** Accessible name of the control that crashes the hero drawing. */
+    segfaultAction: string;
+    /** Appended to the faulting address once every pixel is back. */
+    segfaultRecovered: string;
     profileLabel: string;
     exploreLabel: string;
     blogTitle: string;
-    blogDescription: string;
     botTitle: string;
-    botDescription: string;
-  };
-  /** @brief Uses 页面辅助文案 (Uses-page supporting copy)。 */
-  uses: {
-    eyebrow: string;
-    intro: string;
-  };
-  /** @brief Now 页面辅助文案 (Now-page supporting copy)。 */
-  now: {
-    eyebrow: string;
-    intro: string;
   };
   /** @brief Projects 页面文案 (Projects-page copy)。 */
   projects: {
-    eyebrow: string;
-    intro: string;
-    sourceLabel: string;
-    sourceLive: string;
     sourceFallback: string;
     repository: string;
     homepage: string;
@@ -87,18 +71,14 @@ export interface Messages {
   };
   /** @brief Contact 页面文案 (Contact-page copy)。 */
   contact: {
-    /** Introductory label above the page title. */
-    eyebrow: string;
-    /** Guidance for choosing an existing contact channel. */
-    intro: string;
     /** Badge on the recommended contact channel. */
     preferred: string;
     /** Accessible action label for a contact channel. */
     openLink: string;
+    /** Heading for contact channels. */
+    channelsTitle: string;
     /** Heading for owner-confirmed public platforms. */
     platformsTitle: string;
-    /** Short explanation of the platform list. */
-    platformsIntro: string;
     /** Accessible action label for a platform destination. */
     openPlatform: string;
   };

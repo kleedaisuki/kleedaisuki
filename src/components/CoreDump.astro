@@ -1,0 +1,166 @@
+---
+import Icon from "@moesegfault/style/astro/Icon.astro";
+import { getMessages, type Locale } from "../i18n";
+import { type Cell, place } from "../pixel/cell";
+import { faceOnly } from "../pixel/core";
+import { type Scene, scenes } from "../pixel/scene";
+import DitherEdge from "./DitherEdge.astro";
+import PixelArt from "./PixelArt.astro";
+
+interface Props {
+  locale: Locale;
+  class?: string;
+  labelledby: string;
+}
+
+const { locale, class: className, labelledby } = Astro.props;
+const copy = getMessages(locale).home;
+
+/** The static drawing: what readers without scripts, motion, or a canvas see. */
+function still({ cells, core }: Scene): readonly Cell[] {
+  return [...cells, ...place(faceOnly("calm"), core.column, core.row)];
+}
+---
+
+<section
+  class:list={["core-dump", "bleed", className]}
+  data-moe-surface="brand"
+  data-core-dump
+  data-recovered-label={copy.segfaultRecovered}
+  aria-labelledby={labelledby}
+>
+  <DitherEdge />
+  <canvas class="core-dump__stage" aria-hidden="true"></canvas>
+  <div class="core-dump__grid pad">
+    <div class="core-dump__copy">
+      <slot />
+      <div class="core-dump__bar">
+        <button
+          class="moe-button moe-button--ghost moe-button--sm"
+          type="button"
+          data-core-trigger
+          aria-label={copy.segfaultAction}
+          hidden
+        >
+          <Icon name="bomb" size={16} />
+          <code aria-hidden="true">kill -SEGV me</code>
+        </button>
+        <output></output>
+      </div>
+    </div>
+    <div class="core-dump__field" data-core-field>
+      {
+        (["wide", "tall"] as const).map((name) => (
+          <PixelArt
+            class={`core-dump__still core-dump__still--${name}`}
+            cells={still(scenes[name])}
+            columns={scenes[name].columns}
+            rows={scenes[name].rows}
+          />
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  import "../scripts/core-dump";
+</script>
+
+<style>
+  .core-dump {
+    position: relative;
+    isolation: isolate;
+  }
+  .core-dump__stage {
+    position: absolute;
+    z-index: -1;
+    inset-block-start: 0;
+    inset-inline-start: calc(50% - 50vw);
+    width: 100vw;
+    max-width: none;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .core-dump[data-core-ready] .core-dump__stage {
+    opacity: 1;
+    transition: opacity var(--moe-motion-slow) var(--moe-motion-ease-standard);
+  }
+  /* The static drawing arrives first; the canvas takes over once it has painted the same pixels. */
+  .core-dump[data-core-ready] :global(.core-dump__still) {
+    visibility: hidden;
+    transition: visibility 0s var(--moe-motion-slow);
+  }
+  .core-dump__grid {
+    display: grid;
+    padding-block: clamp(1.5rem, 3vw, 2.5rem) clamp(4.5rem, 8vw, 6.75rem);
+  }
+  .core-dump__copy,
+  .core-dump__field {
+    grid-area: 1 / 1;
+  }
+  /* The drawing leaves its upper left empty for the copy; presses pass through to it. */
+  .core-dump__copy {
+    z-index: 1;
+    display: grid;
+    width: 58%;
+    justify-items: start;
+    align-content: center;
+    gap: var(--moe-space-5);
+    padding-block-end: 17%;
+    pointer-events: none;
+  }
+  .core-dump__copy :global(:is(h1, p)) {
+    margin: 0;
+  }
+  .core-dump__copy > :global(*),
+  .core-dump__bar > * {
+    pointer-events: auto;
+  }
+  .core-dump__bar {
+    display: flex;
+    min-height: var(--moe-control-sm);
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--moe-space-2) var(--moe-space-3);
+    margin-inline-start: -0.625rem;
+    font-family: var(--moe-font-family-mono);
+    font-size: var(--moe-font-size-xs);
+  }
+  /* Firelight may pass behind, so the readout keeps its own ground. */
+  .core-dump__bar output:not(:empty) {
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--moe-radius-xs);
+    background: var(--moe-surface-strong);
+  }
+  .core-dump__field {
+    align-self: end;
+    cursor: crosshair;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  :global(.core-dump__still--tall) {
+    display: none;
+  }
+  @media (max-width: 52rem) {
+    .core-dump__copy,
+    .core-dump__field {
+      grid-area: auto;
+    }
+    .core-dump__copy {
+      width: 100%;
+      padding-block-end: var(--moe-space-5);
+    }
+    .core-dump__field {
+      width: min(100%, 30rem);
+    }
+    :global(.core-dump__still--wide) {
+      display: none;
+    }
+    :global(.core-dump__still--tall) {
+      display: block;
+    }
+  }
+</style>

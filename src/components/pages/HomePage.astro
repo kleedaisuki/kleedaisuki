@@ -1,104 +1,81 @@
 ---
+import Button from "@moesegfault/style/astro/Button.astro";
+import Icon from "@moesegfault/style/astro/Icon.astro";
 import BaseLayout from "@layouts/BaseLayout.astro";
-import "@styles/home.css";
 import { SITE } from "../../config/site";
-import { getLocalizedDocument } from "../../i18n/content";
 import { getMessages, pagePath, type Locale } from "../../i18n";
+import { getLocalizedDocument } from "../../i18n/content";
+import { parseIdentity } from "../../lib/identity";
 import { getProfileSnapshot } from "../../lib/profile-catalog";
+import Backtrace from "../Backtrace.astro";
+import CoreDump from "../CoreDump.astro";
 import GitHubProfileCard from "../GitHubProfileCard.astro";
-import MarkdownPage from "../MarkdownPage.astro";
+import MemoryMap from "../MemoryMap.astro";
 
-/** @brief 本地化首页属性 (Localized home-page properties)。 */
 interface Props {
-  /** @brief 当前页面语言 (Active page locale)。 */
   locale: Locale;
 }
 
-/** @brief 当前页面语言 (Active page locale)。 */
 const { locale } = Astro.props;
-/** @brief 当前语言的强类型文案 (Strongly typed messages for the active locale)。 */
 const copy = getMessages(locale);
-/** @brief 当前语言的首页元数据 (Home-page metadata for the active locale)。 */
 const metadata = copy.meta.home;
-/** @brief 当前语言的个人资料内容 (Localized profile content)。 */
-const { Content } = await getLocalizedDocument("profile", locale);
-/** @brief 构建期共享的 GitHub 公开资料 (Build-shared public GitHub profile)。 */
+const { markdown } = await getLocalizedDocument("profile", locale);
+const fragments = parseIdentity(markdown);
 const profileSnapshot = await getProfileSnapshot();
-
-/** @brief 首页重点去向卡片 (Featured home-page destinations)。 */
-const destinations = [
-  {
-    index: "01",
-    title: copy.home.botTitle,
-    description: copy.home.botDescription,
-    href: SITE.botUrl,
-    modifier: "destination--bot",
-  },
-  {
-    index: "02",
-    title: copy.home.blogTitle,
-    description: copy.home.blogDescription,
-    href: SITE.blogUrl,
-    modifier: "destination--blog",
-  },
-] as const;
 ---
 
-<BaseLayout
-  locale={locale}
-  page="home"
-  title={metadata.title}
-  description={metadata.description}
-  class="home-page"
->
-  <div class="home-shell">
-    <section class="home-hero" aria-labelledby="home-title" data-reveal>
-      <div class="home-hero__constellation" aria-hidden="true">
-        <span></span><span></span><span></span>
+<BaseLayout {locale} page="home" title={metadata.title} description={metadata.description}>
+  <div class="home">
+    <CoreDump {locale} class="home-hero" labelledby="home-title">
+      <h1 id="home-title">{copy.home.headline}</h1>
+      <p class="lede">{copy.home.introduction}</p>
+      <div class="moe-cluster">
+        <Button href={SITE.githubUrl} size="lg">
+          GitHub
+          <Icon slot="trailing" name="arrow-up-right" size={16} />
+        </Button>
+        <Button href={pagePath("projects", locale)} size="lg" variant="secondary">
+          {copy.nav.projects}
+        </Button>
       </div>
-      <div class="home-hero__copy">
-        <p class="eyebrow">{copy.home.eyebrow}</p>
-        <p class="home-hero__greeting">{copy.home.greeting}</p>
-        <h1 id="home-title" class="home-hero__headline">{copy.home.headline}</h1>
-        <p class="home-hero__lede">{copy.home.introduction}</p>
+    </CoreDump>
 
-        <div class="home-hero__actions" aria-label={copy.home.exploreLabel}>
-          <a class="button" href={SITE.githubUrl}>
-            GitHub <span aria-hidden="true">↗</span>
-          </a>
-          <a class="button button--ghost" href={pagePath("projects", locale)}>
-            {copy.nav.projects}
-          </a>
-        </div>
-      </div>
+    <div class="home-workbench moe-blueprint pad">
+      <GitHubProfileCard snapshot={profileSnapshot} {locale} copy={copy.home} />
+      <MemoryMap {locale} />
+    </div>
 
-      <div class="home-hero__aside">
-        <GitHubProfileCard snapshot={profileSnapshot} locale={locale} copy={copy.home} />
-        <nav class="destinations" aria-label={copy.home.exploreLabel}>
-          {
-            destinations.map((destination) => (
-              <a
-                class:list={["destination", destination.modifier]}
-                href={destination.href}
-                aria-label={`${destination.title} — ${destination.description}`}
-                data-reveal
-                style={`--reveal-delay: ${80 + Number(destination.index) * 45}ms`}
-              >
-                <span class="destination__index" aria-hidden="true">{destination.index}</span>
-                <span class="destination__body">
-                  <strong>{destination.title}</strong>
-                  <small>{destination.description}</small>
-                </span>
-                <span class="destination__arrow" aria-hidden="true">↗</span>
-              </a>
-            ))
-          }
-        </nav>
-      </div>
-    </section>
-
-    <section class="home-profile" aria-label={copy.home.profileLabel} data-reveal>
-      <MarkdownPage Content={Content} eyebrow={copy.home.profileLabel} />
+    <section class="home-profile" aria-label={copy.home.profileLabel}>
+      <Backtrace {fragments} />
     </section>
   </div>
 </BaseLayout>
+
+<style>
+  .home {
+    min-width: 0;
+  }
+  .home h1 {
+    font-size: clamp(2.5rem, 5vw, var(--moe-font-size-3xl));
+    letter-spacing: -0.04em;
+    line-height: 1.08;
+  }
+  .home h1:lang(zh) {
+    max-width: 7em;
+    letter-spacing: -0.02em;
+    line-height: 1.16;
+  }
+  .home-workbench {
+    --moe-blueprint-line: color-mix(in srgb, var(--moe-line) 60%, transparent);
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--moe-space-4);
+    padding-block: var(--moe-space-6);
+    border-block-end: 1px solid var(--moe-line);
+  }
+  @media (max-width: 64rem) {
+    .home-workbench {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

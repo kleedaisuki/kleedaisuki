@@ -17,12 +17,6 @@ interface Props {
 const { snapshot, locale, copy } = Astro.props;
 /** @brief 规范化后的公开资料 (Normalized public profile)。 */
 const { profile } = snapshot;
-/** @brief 与页面语言一致的加入年份文本 (Localized GitHub join-year text)。 */
-const joinedYear = new Intl.DateTimeFormat(locale === "zh" ? "zh-CN" : "en", {
-  year: "numeric",
-}).format(new Date(profile.createdAt));
-/** @brief 适合紧凑展示的个人主页地址 (Compact website address for display)。 */
-const displayBlog = profile.blog?.replace(/^https?:\/\//, "").replace(/\/$/, "");
 /** @brief 资料简介在当前页面中的语言标记 (Language annotation for the profile biography)。 */
 const bioLanguage =
   locale === "zh" && profile.bio && !/\p{Script=Han}/u.test(profile.bio) ? "en" : undefined;
@@ -35,9 +29,8 @@ const statistics = [
 ---
 
 <aside
-  class="github-profile"
+  class="github-profile moe-panel"
   aria-labelledby="github-profile-name"
-  data-reveal
   data-github-profile
   data-profile-state="static"
   data-profile-endpoint="/api/github/profile"
@@ -47,7 +40,7 @@ const statistics = [
   data-profile-static-label={copy.githubSnapshot}
   data-profile-avatar-suffix={locale === "zh" ? " 的 GitHub 头像" : "'s GitHub avatar"}
 >
-  <header class="github-profile__header">
+  <div class="github-profile__identity">
     <img
       class="github-profile__avatar"
       src={profile.avatarUrl}
@@ -62,21 +55,20 @@ const statistics = [
       fetchpriority="high"
       data-profile-avatar
     />
-    <div class="github-profile__identity">
-      <span class="github-profile__source" aria-live="polite">
-        <span aria-hidden="true"></span>
-        <span data-profile-source-label>{copy.githubSnapshot}</span>
-      </span>
+    <div>
       <h2 id="github-profile-name" data-profile-name>{profile.name ?? profile.login}</h2>
       <a href={profile.profileUrl} data-profile-link>
-        @<span data-profile-login>{profile.login}</span><span aria-hidden="true"> ↗</span>
+        @<span data-profile-login>{profile.login}</span>
       </a>
+      <span class="github-profile__source" aria-live="polite">
+        <span class="moe-status-dot" aria-hidden="true"></span>
+        <span class="moe-visually-hidden" data-profile-source-label>{copy.githubSnapshot}</span>
+      </span>
+      <p class="github-profile__bio" lang={bioLanguage} hidden={!profile.bio} data-profile-bio>
+        {profile.bio}
+      </p>
     </div>
-  </header>
-
-  <p class="github-profile__bio" lang={bioLanguage} hidden={!profile.bio} data-profile-bio>
-    {profile.bio}
-  </p>
+  </div>
 
   <dl class="github-profile__stats" aria-label={copy.githubProfileLabel}>
     {
@@ -89,24 +81,118 @@ const statistics = [
     }
   </dl>
 
-  <footer class="github-profile__metadata">
-    <ul>
-      <li hidden={!profile.company} data-profile-company>
-        <span aria-hidden="true">⌘</span><span data-profile-company-text>{profile.company}</span>
-      </li>
-      <li hidden={!profile.location} data-profile-location>
-        <span aria-hidden="true">⌖</span><span data-profile-location-text>{profile.location}</span>
-      </li>
-      <li>
-        <span aria-hidden="true">◷</span>{copy.joinedGitHub} <span data-profile-joined>{joinedYear}</span>
-      </li>
-    </ul>
-    <a href={profile.blog ?? undefined} hidden={!profile.blog} data-profile-blog>
-      <span data-profile-blog-text>{displayBlog}</span><span aria-hidden="true"> ↗</span>
-    </a>
-  </footer>
+  <ul class="github-profile__metadata">
+    <li hidden={!profile.company} data-profile-company>
+      <span data-profile-company-text>{profile.company}</span>
+    </li>
+    <li hidden={!profile.location} data-profile-location>
+      <span data-profile-location-text>{profile.location}</span>
+    </li>
+  </ul>
 </aside>
 
 <script>
   import "../scripts/github-profile";
 </script>
+
+<style>
+  .github-profile {
+    display: grid;
+    grid-template-rows: 1fr auto auto;
+  }
+  .github-profile__source {
+    display: inline-block;
+    margin-inline-start: 0.625rem;
+  }
+  .github-profile[data-profile-state="static"] .moe-status-dot {
+    color: var(--moe-neutral);
+  }
+  .github-profile[data-profile-state="refreshing"] .moe-status-dot {
+    color: var(--moe-warning);
+  }
+  /* One ring when the numbers turn live; the dot then stays still. */
+  @media (prefers-reduced-motion: no-preference) {
+    .github-profile[data-profile-state="live"] .moe-status-dot {
+      animation: ping 900ms var(--moe-motion-ease-emphasized);
+    }
+  }
+  @keyframes ping {
+    from {
+      box-shadow: 0 0 0 0 currentColor;
+    }
+    to {
+      box-shadow: 0 0 0 0.75rem transparent;
+    }
+  }
+  .github-profile__identity {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--moe-space-5);
+    padding: var(--moe-space-5);
+  }
+  .github-profile__avatar {
+    width: clamp(6rem, 30vw, 10rem);
+    height: auto;
+    border: 1px solid var(--moe-line);
+    border-radius: var(--moe-radius-md);
+    background: var(--moe-surface-muted);
+    transition:
+      rotate var(--moe-bounce),
+      scale var(--moe-bounce);
+  }
+  .github-profile__avatar:hover {
+    rotate: -3deg;
+    scale: 1.04;
+  }
+  .github-profile__identity > div {
+    min-width: 0;
+    flex: 1 1 8rem;
+  }
+  .github-profile__identity :is(h2, p) {
+    margin: 0;
+  }
+  .github-profile__identity h2 {
+    font-size: 1.5rem;
+  }
+  .github-profile__identity a {
+    font-family: var(--moe-font-family-mono);
+    font-size: 0.8125rem;
+  }
+  .github-profile__bio {
+    padding-block-start: var(--moe-space-3);
+  }
+  .github-profile__stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0;
+    border-block: 1px solid var(--moe-line);
+  }
+  .github-profile__stats > div {
+    display: grid;
+    padding: var(--moe-space-4) var(--moe-space-5);
+  }
+  .github-profile__stats > div + div {
+    border-inline-start: 1px solid var(--moe-line);
+  }
+  .github-profile__stats dt {
+    order: 1;
+    color: var(--moe-text-soft);
+    font-size: var(--moe-font-size-xs);
+  }
+  .github-profile__stats dd {
+    margin: 0;
+    color: var(--moe-heading);
+    font-family: var(--moe-font-family-mono);
+    font-size: 1.75rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+  }
+  .github-profile__metadata {
+    margin: 0;
+    padding: var(--moe-space-4) var(--moe-space-5);
+    font-size: 0.8125rem;
+    list-style: none;
+  }
+</style>

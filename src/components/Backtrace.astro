@@ -1,0 +1,129 @@
+---
+import type { IdentityFragment } from "../lib/identity";
+import { ICON_SIZE, pixelIcon } from "../pixel/icons";
+import PixelArt from "./PixelArt.astro";
+
+interface Props {
+  fragments: readonly IdentityFragment[];
+}
+
+const { fragments } = Astro.props;
+---
+
+<ol class="backtrace" start="0">
+  {
+    fragments.map(({ quote, mark, roles }, index) => {
+      const icon = pixelIcon(mark);
+      return (
+        <li class="entry pad">
+          <span class="entry__index" aria-hidden="true">#{index}</span>
+          <span class="entry__icon" aria-hidden="true">
+            {icon ? <PixelArt cells={icon} columns={ICON_SIZE} rows={ICON_SIZE} /> : mark}
+          </span>
+          <blockquote>{quote}</blockquote>
+          <ul>
+            {roles.map((role) => <li>{role}</li>)}
+          </ul>
+        </li>
+      );
+    })
+  }
+</ol>
+
+<style>
+  .backtrace {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .entry {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2rem 4rem minmax(0, 1fr) minmax(0, 18rem);
+    align-items: center;
+    column-gap: clamp(1rem, 3vw, 2.5rem);
+    padding-block: var(--moe-space-6);
+    transition: background-color var(--moe-motion-base) var(--moe-motion-ease-standard);
+  }
+  .entry + .entry {
+    border-block-start: 1px solid var(--moe-line);
+  }
+  /* The selected frame, as a debugger would mark it. */
+  .entry::before {
+    position: absolute;
+    inset: -1px auto -1px -1px;
+    width: 3px;
+    background: var(--moe-accent);
+    content: "";
+    scale: 1 0;
+    transition: scale var(--moe-spring);
+  }
+  .entry:hover {
+    background: var(--moe-surface-sunken);
+  }
+  .entry:hover::before {
+    scale: 1;
+  }
+  .entry__index {
+    color: var(--moe-text-soft);
+    font-family: var(--moe-font-family-mono);
+    font-size: 0.8125rem;
+    transition:
+      color var(--moe-motion-base) var(--moe-motion-ease-standard),
+      translate var(--moe-spring);
+  }
+  .entry:hover .entry__index {
+    color: var(--moe-accent-strong);
+    translate: 0.375rem;
+  }
+  .entry__icon {
+    transition:
+      rotate var(--moe-bounce),
+      scale var(--moe-bounce);
+  }
+  .entry:hover .entry__icon {
+    rotate: -8deg;
+    scale: 1.12;
+  }
+  .entry blockquote {
+    margin: 0;
+    color: var(--moe-heading);
+    font-size: clamp(1.0625rem, 1.7vw, 1.25rem);
+    font-weight: var(--moe-font-weight-semibold);
+    letter-spacing: -0.01em;
+    line-height: 1.6;
+  }
+  .entry ul {
+    display: grid;
+    gap: 0.125rem;
+    margin: 0;
+    padding: 0;
+    color: var(--moe-text-soft);
+    font-size: var(--moe-font-size-sm);
+    list-style: none;
+  }
+  @media (max-width: 64rem) {
+    .entry {
+      grid-template-columns: 1.5rem 3rem minmax(0, 1fr);
+      column-gap: var(--moe-space-4);
+      align-items: start;
+    }
+    .entry ul {
+      grid-column: 3;
+      margin-block-start: var(--moe-space-3);
+    }
+  }
+  @media (max-width: 52rem) {
+    .entry {
+      grid-template-columns: 3rem minmax(0, 1fr);
+      padding-block: var(--moe-space-5);
+    }
+    .entry__index {
+      display: none;
+    }
+    .entry ul {
+      grid-column: 2;
+    }
+  }
+</style>

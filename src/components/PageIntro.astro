@@ -1,0 +1,63 @@
+---
+import type { Mood } from "../pixel/core";
+import CoreMascot from "./CoreMascot.astro";
+
+interface Props {
+  title: string;
+  mood: Mood;
+}
+
+const { title, mood } = Astro.props;
+---
+
+<header class="page-intro pad">
+  <div class="page-intro__copy">
+    <h1>{title}</h1>
+    <slot />
+  </div>
+  <CoreMascot {mood} class="page-intro__core" />
+</header>
+
+<style>
+  .page-intro {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(6.5rem, 18vw, 12rem);
+    align-items: center;
+    gap: clamp(1rem, 4vw, 4rem);
+    padding-block-start: clamp(1.75rem, 4vw, 3rem);
+    border-block-end: 1px solid var(--moe-line);
+    isolation: isolate;
+  }
+  /* Graph paper under Core only, so the text keeps a clean ground. */
+  .page-intro::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--moe-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--moe-line) 1px, transparent 1px);
+    background-position: -1px -1px;
+    background-size: 2rem 2rem;
+    content: "";
+    mask-image: linear-gradient(to left, #000, transparent 46%);
+  }
+  .page-intro__copy {
+    display: grid;
+    justify-items: start;
+    gap: var(--moe-space-4);
+    padding-block-end: clamp(1.75rem, 4vw, 3rem);
+  }
+  .page-intro__copy > :global(*) {
+    margin: 0;
+  }
+  .page-intro h1 {
+    font-size: clamp(2.25rem, 5.4vw, var(--moe-font-size-3xl));
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+  .page-intro h1:lang(zh) {
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+</style>

@@ -1,167 +1,247 @@
 ---
-import ProjectCard from "../ProjectCard.astro";
+import Button from "@moesegfault/style/astro/Button.astro";
+import Icon from "@moesegfault/style/astro/Icon.astro";
+import Notice from "@moesegfault/style/astro/Notice.astro";
+import { SITE } from "../../config/site";
 import { PROJECT_COPY } from "../../data/project-copy";
 import { getMessages, type Locale } from "../../i18n";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getProjectDirectory } from "../../lib/project-catalog";
+import { countLanguages, groupByMonth, languageHue } from "../../lib/project-index";
+import PageIntro from "../PageIntro.astro";
+import ProjectCard from "../ProjectCard.astro";
+import RailSection from "../RailSection.astro";
 
-/** @brief 本地化项目页面属性 (Localized projects-page properties)。 */
 interface Props {
-  /** @brief 当前页面语言 (Current page locale)。 */
   locale: Locale;
 }
 
-/** @brief 当前页面语言 (Current page locale)。 */
-const { locale } = Astro.props as Props;
-/** @brief 当前语言的全站文案 (Site messages for the active locale)。 */
+const { locale } = Astro.props;
 const message = getMessages(locale);
-/** @brief 当前语言的项目辅助文案 (Project supporting copy for the active locale)。 */
 const copy = PROJECT_COPY[locale];
-/** @brief 构建期共享且规范化的 GitHub 项目目录 (Build-shared normalized GitHub project directory)。 */
 const { projects, source } = await getProjectDirectory();
+const months = groupByMonth(projects);
+const languages = countLanguages(projects);
+const live = source === "github";
+const monthName = new Intl.DateTimeFormat(locale === "zh" ? "zh-CN" : "en-US", {
+  year: "numeric",
+  month: "long",
+  timeZone: "UTC",
+});
 ---
 
-<BaseLayout locale={locale} page="projects">
-  <section class="projects-hero" aria-labelledby="projects-title">
-    <p class="projects-hero__eyebrow">{message.projects.eyebrow}</p>
-    <h1 id="projects-title">{copy.title}</h1>
-    <p>{message.projects.intro}</p>
-    <p class="projects-hero__source">
-      <span>{message.projects.sourceLabel}:</span>
-      <strong>
-        {source === "github" ? message.projects.sourceLive : message.projects.sourceFallback}
-      </strong>
-    </p>
-    <a href="https://github.com/kleedaisuki">
-      {copy.viewAll} <span aria-hidden="true">↗</span>
-    </a>
-  </section>
+<BaseLayout {locale} page="projects">
+  <div class="projects" data-projects>
+    <PageIntro title={copy.title} mood="starry">
+      <Button href={SITE.githubUrl} aria-label={copy.viewAll}>
+        GitHub
+        <Icon slot="trailing" name="arrow-up-right" size={16} />
+      </Button>
+    </PageIntro>
 
-  {
-    source === "fallback" && (
-      <p class="projects-status" role="status">
-        <strong>{message.projects.sourceFallback}:</strong> {copy.fallbackNotice}
-      </p>
-    )
-  }
+    {
+      !live && (
+        <div class="projects__notice pad">
+          <Notice tone="warning" title={message.projects.sourceFallback} role="status">
+            {copy.fallbackNotice}
+          </Notice>
+        </div>
+      )
+    }
 
-  <section class="projects-list" aria-label={copy.listLabel}>
-    {projects.map((project) => <ProjectCard project={project} locale={locale} />)}
-  </section>
+    <div class="heap pad">
+      <nav class="heap__map" aria-label={copy.listLabel}>
+        {
+          projects.map(({ name, language }) => (
+            <a href={`#project-${name}`} data-language={language} style={`--hue:${languageHue(language)}`}>
+              <span>{name}</span>
+            </a>
+          ))
+        }
+      </nav>
+      <ul class="heap__legend" aria-label={copy.languagesLabel}>
+        {
+          languages.map(({ language, count }) => (
+            <li>
+              <button type="button" data-language={language} aria-pressed="false" style={`--hue:${languageHue(language)}`}>
+                {language} <b>{count}</b>
+              </button>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    {
+      months.map(({ month, projects: group }) => (
+        <RailSection id={`month-${month}`} title={monthName.format(new Date(`${month}-01`))}>
+          <ul class="projects__grid">
+            {group.map((project) => (
+              <li
+                data-project
+                data-language={project.language}
+                style={`--card:project-${projects.indexOf(project)}`}
+              >
+                <ProjectCard {project} {locale} />
+              </li>
+            ))}
+          </ul>
+        </RailSection>
+      ))
+    }
+  </div>
 </BaseLayout>
 
+<script>
+  import "../../scripts/project-heap";
+</script>
+
 <style>
-  .projects-hero {
-    position: relative;
-    overflow: hidden;
-    margin: 1rem 0 2rem;
-    padding: clamp(1.35rem, 6vw, 2.6rem);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-large);
-    background: var(--surface-solid);
-    background: linear-gradient(125deg, var(--surface-solid), var(--coral-soft));
-    box-shadow: var(--shadow);
-    isolation: isolate;
+  .projects {
+    min-width: 0;
   }
-
-  .projects-hero::after {
-    position: absolute;
-    z-index: -1;
-    right: -2.2rem;
-    bottom: -3.8rem;
-    width: 11rem;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: var(--coral-soft);
-    background: radial-gradient(circle, color-mix(in srgb, var(--gold) 55%, transparent), transparent 70%);
-    content: "";
-    pointer-events: none;
+  .projects__notice {
+    padding-block: var(--moe-space-5);
+    border-block-end: 1px solid var(--moe-line);
   }
-
-  .projects-hero__eyebrow {
-    margin: 0 0 0.5rem;
-    color: var(--coral-strong);
-    font-size: 0.78rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .projects-hero h1 {
+  .projects__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: var(--moe-space-4);
     margin: 0;
-    overflow-wrap: anywhere;
-    color: var(--heading);
-    font-size: clamp(2.1rem, 6vw, 3.5rem);
-    line-height: 1;
-    letter-spacing: -0.045em;
+    padding: 0;
+    list-style: none;
+  }
+  .projects > :global(section:not(:has(li:not([hidden])))) {
+    display: none;
+  }
+  /* The footer rules off whichever month is last in view. */
+  .projects > :global(section:not(:has(~ section li:not([hidden])))) {
+    border-block-end: 0;
+  }
+  :global(:root[data-heap-shift]) .projects__grid li {
+    view-transition-name: var(--card);
   }
 
-  .projects-hero > p:not(.projects-hero__eyebrow) {
-    max-width: 43rem;
-    margin: 1rem 0;
-    color: var(--text-soft);
+  /* One block per repository, newest first: the directory as a heap. */
+  .heap {
+    position: relative;
+    display: grid;
+    gap: var(--moe-space-4);
+    padding-block: 2.5rem var(--moe-space-4);
+    border-block-end: 1px solid var(--moe-line);
+    background: var(--moe-surface-sunken);
   }
-
-  .projects-hero > .projects-hero__source {
+  .heap__map {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(2.75rem, 1fr));
+    gap: 4px;
+  }
+  .heap__map a {
+    height: 2.75rem;
+  }
+  /* The block moves and the link does not, so a rising block never slips from under the pointer. */
+  .heap__map a::before {
+    display: block;
+    height: 100%;
+    border-radius: 2px;
+    background: var(--hue);
+    content: "";
+    transition:
+      translate var(--moe-spring),
+      scale var(--moe-spring),
+      border-radius var(--moe-spring),
+      opacity var(--moe-motion-base) var(--moe-motion-ease-standard);
+  }
+  .heap__map a:is(:hover, :focus-visible)::before {
+    border-radius: var(--moe-radius-sm);
+    translate: 0 -6px;
+  }
+  .heap__map a:is(:hover, :focus-visible) + a::before,
+  .heap__map a:has(+ a:is(:hover, :focus-visible))::before {
+    translate: 0 -2px;
+  }
+  .heap__map a:active::before {
+    scale: var(--moe-press);
+    translate: 0 0;
+  }
+  .heap__map a[data-away]::before {
+    opacity: 0.18;
+  }
+  /* Every name is written in the same spot; only the touched one is shown. */
+  .heap__map span {
+    position: absolute;
+    inset-block-start: 0.75rem;
+    inset-inline: var(--site-gutter);
+    overflow: hidden;
+    color: var(--moe-heading);
+    font-family: var(--moe-font-family-mono);
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    opacity: 0;
+    pointer-events: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .heap__map a:is(:hover, :focus-visible) span {
+    opacity: 1;
+  }
+  /* A name under the pointer wins over the one left focused. */
+  .heap__map:hover a:not(:hover) span {
+    opacity: 0;
+  }
+  .heap__legend {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem;
-    margin-block: -0.25rem 0.6rem;
-    font-size: 0.82rem;
+    margin: 0 -0.625rem;
+    padding: 0;
+    list-style: none;
   }
-
-  .projects-hero__source strong {
-    color: var(--heading);
-  }
-
-  .projects-hero a {
-    position: relative;
-    z-index: 1;
+  .heap__legend button {
     display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
     min-height: 2.75rem;
-    color: var(--coral-strong);
-    font-weight: 800;
-    text-underline-offset: 0.24em;
-    touch-action: manipulation;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 0.625rem;
+    border: 0;
+    color: var(--moe-text-soft);
+    background: none;
+    cursor: pointer;
+    font-family: var(--moe-font-family-mono);
+    font-size: var(--moe-font-size-xs);
+    transition: color var(--moe-motion-fast) var(--moe-motion-ease-standard);
   }
-
-  .projects-hero a:focus-visible {
-    border-radius: 0.3rem;
-    outline: 3px solid var(--focus);
-    outline-offset: 3px;
+  .heap__legend button::before {
+    width: 0.625rem;
+    height: 0.625rem;
+    background: var(--hue);
+    content: "";
+    transition:
+      rotate var(--moe-bounce),
+      scale var(--moe-bounce);
   }
-
-  .projects-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18.5rem), 1fr));
-    gap: 1.15rem;
-    min-width: 0;
-    margin-bottom: 2rem;
+  .heap__legend button:is(:hover, [aria-pressed="true"]) {
+    color: var(--moe-heading);
   }
-
-  .projects-status {
-    margin: 0 0 1.25rem;
-    padding: 0.8rem 1rem;
-    overflow-wrap: anywhere;
-    border: 1px dashed var(--border);
-    border-radius: var(--radius-small);
-    color: var(--text-soft);
-    background: var(--surface-soft);
+  .heap__legend button:hover::before {
+    scale: 1.3;
   }
-
-  @media (max-width: 24rem) {
-    .projects-hero {
-      margin-top: 0.5rem;
-      border-radius: var(--radius-medium);
-    }
+  .heap__legend button:active::before {
+    scale: 0.7;
   }
-
-  @supports (padding: max(0px)) {
-    .projects-hero {
-      padding-right: max(clamp(1.35rem, 6vw, 2.6rem), env(safe-area-inset-right));
-      padding-left: max(clamp(1.35rem, 6vw, 2.6rem), env(safe-area-inset-left));
+  .heap__legend button[aria-pressed="true"]::before {
+    rotate: 45deg;
+    scale: 1.3;
+  }
+  .heap__legend:has([aria-pressed="true"]) button[aria-pressed="false"]:not(:hover)::before {
+    opacity: 0.35;
+  }
+  .heap__legend b {
+    color: var(--moe-heading);
+  }
+  @media (scripting: none) {
+    .heap__legend {
+      display: none;
     }
   }
 </style>

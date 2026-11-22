@@ -214,12 +214,9 @@ test("home upgrades its static GitHub profile with live browser data", async ({ 
     await expect(profile).toHaveAttribute("data-profile-state", "live");
     await expect(profile.locator("[data-profile-name]")).toHaveText("MoeSegFault Live");
     await expect(profile.locator('[data-profile-stat="repositories"]')).toHaveText("47");
-    /** @brief 不应被状态圆点样式压缩的资料来源标签 (Profile-source label that must not inherit the status-dot sizing)。 */
-    const sourceLabel = profile.locator("[data-profile-source-label]");
-    await expect(sourceLabel).toBeVisible();
-    expect(
-      await sourceLabel.evaluate((element) => element.scrollWidth - element.clientWidth),
-    ).toBeLessThanOrEqual(1);
+    await expect(profile.locator("[data-profile-source-label]")).toHaveText(
+      path === "/" ? "GitHub 实时资料" : "Live GitHub profile",
+    );
     await expect(profile.locator("img.github-profile__avatar")).toHaveAttribute(
       "src",
       /avatars\.githubusercontent\.com/,
@@ -313,56 +310,127 @@ for (const viewport of homeViewports) {
     await page.setViewportSize({ width: viewport.width, height: viewport.height });
     await visitAndVerify(page, "/", "zh-CN");
 
-    /** @brief 首页关键区域的布局几何信息 (Layout geometry for key home-page regions)。 */
-    const geometry = await page.evaluate(() => {
-      /** @brief 页面主内容区域 (Main page region)。 */
-      const main = document.querySelector("main");
-      /** @brief 首页主视觉区域 (Home hero region)。 */
-      const hero = document.querySelector(".home-hero");
-      /** @brief 首页个人资料区域 (Home profile region)。 */
-      const profile = document.querySelector(".home-profile");
-      if (!(main && hero && profile)) return null;
-      /** @brief 主内容边界 (Main-content bounds)。 */
-      const mainBox = main.getBoundingClientRect();
-      /** @brief 主视觉边界 (Hero bounds)。 */
-      const heroBox = hero.getBoundingClientRect();
-      /** @brief 个人资料边界 (Profile bounds)。 */
-      const profileBox = profile.getBoundingClientRect();
+    /** Vertical gaps between the home page's consecutive blocks. */
+    const layout = await page.locator(".home").evaluate((home) => {
+      const blocks = [...home.children].filter((child) => child.tagName !== "SCRIPT");
+      const boxes = blocks.map((block) => block.getBoundingClientRect());
       return {
-        mainTop: mainBox.top,
-        heroTop: heroBox.top,
-        heroHeight: heroBox.height,
-        profileTop: profileBox.top,
+        blocks: boxes.length,
+        shortest: Math.min(...boxes.map((box) => box.height)),
+        widestGap: Math.max(
+          ...boxes.slice(1).map((box, index) => box.top - (boxes[index]?.bottom ?? 0)),
+        ),
         documentHeight: document.documentElement.scrollHeight,
       };
     });
-
-    expect(geometry).not.toBeNull();
-    expect(geometry?.heroHeight ?? 0).toBeGreaterThan(120);
-    expect((geometry?.heroTop ?? 0) - (geometry?.mainTop ?? 0)).toBeLessThan(180);
-    expect(
-      (geometry?.profileTop ?? 0) - ((geometry?.heroTop ?? 0) + (geometry?.heroHeight ?? 0)),
-    ).toBeLessThan(Math.max(180, viewport.height * 0.45));
-    expect(geometry?.documentHeight ?? 0).toBeLessThan(20_000);
+    expect(layout.blocks).toBe(3);
+    expect(layout.shortest).toBeGreaterThan(120);
+    expect(layout.widestGap).toBeLessThanOrEqual(1);
+    expect(layout.documentHeight).toBeLessThan(20_000);
   });
 }
 
-test("theme toggle updates and persists the selected theme", async ({ page }) => {
+test("Core dumps at the pressed address and recovers", async ({ page }) => {
   await visitAndVerify(page, "/", "zh-CN");
+  const output = page.locator(".core-dump output");
+  await page.getByRole("button", { name: "向核心发送 SIGSEGV" }).click();
+  await expect(output).toHaveText(/^SIGSEGV @ 0x[\da-f]{4}$/);
+  await expect(output).toHaveText(/^0x[\da-f]{4} 已恢复 · \d+ ms$/, { timeout: 15_000 });
+});
 
-  /** @brief 初始页面主题 (Initial document theme)。 */
-  const initialTheme = await page.locator("html").getAttribute("data-theme");
-  expect(["light", "dark"]).toContain(initialTheme);
+test("Core dreads the button while it is being considered", async ({ page }) => {
+  await visitAndVerify(page, "/", "zh-CN");
+  const trigger = page.getByRole("button", { name: "向核心发送 SIGSEGV" });
+  const drawing = (): Promise<string> =>
+    page.locator("canvas").evaluate((canvas: HTMLCanvasElement) => canvas.toDataURL());
+  await expect(trigger).toBeVisible();
+  const calm = await drawing();
+  await trigger.focus();
+  await expect.poll(drawing).not.toBe(calm);
+  await trigger.blur();
+  await expect.poll(drawing, { timeout: 10_000 }).toBe(calm);
+});
 
-  /** @brief 主题切换按钮 (Theme-toggle button)。 */
+test("reduced motion keeps Core whole and zeroes the springs", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await visitAndVerify(page, "/", "zh-CN");
+  await page.getByRole("button", { name: "向核心发送 SIGSEGV" }).click();
+  await expect(page.locator(".core-dump output")).toHaveText(/^0x[\da-f]{4} 已恢复 · 0 ms$/);
+  const spring = await page.evaluate(() =>
+    getComputedStyle(document.documentElement).getPropertyValue("--moe-spring").trim(),
+  );
+  expect(spring).toBe("0s linear");
+});
+
+test("home shows its drawing without scripts", async ({ browser, baseURL }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, baseURL: baseURL ?? "" });
+  const page = await context.newPage();
+  await page.goto("/");
+  await expect(page.locator(".core-dump__still:visible")).toHaveCount(1);
+  await expect(page.locator("[data-core-trigger]")).toBeHidden();
+  await context.close();
+});
+
+test("every project block leads to its card", async ({ page }) => {
+  await visitAndVerify(page, "/projects/", "zh-CN");
+  const targets = await page
+    .locator(".heap__map a")
+    .evaluateAll((links) => links.map((link) => link.getAttribute("href")?.slice(1) ?? ""));
+  expect(targets.length).toBeGreaterThan(0);
+  expect(await page.locator(".project-card").count()).toBe(targets.length);
+  for (const id of targets) await expect(page.locator(`[id="${id}"]`)).toHaveCount(1);
+});
+
+test("the project legend filters by one language and lets go", async ({ page }) => {
+  await visitAndVerify(page, "/projects/", "zh-CN");
+  const cards = page.locator("li[data-project]:visible");
+  const months = page.locator(".projects > section:visible");
+  const total = await cards.count();
+  const allMonths = await months.count();
+  const key = page.locator("button[data-language]").first();
+  const language = (await key.getAttribute("data-language")) ?? "";
+  const share = await page.locator(`li[data-language="${language}"]`).count();
+
+  await key.click();
+  await expect(key).toHaveAttribute("aria-pressed", "true");
+  await expect(cards).toHaveCount(share);
+  expect(await months.count()).toBeLessThanOrEqual(allMonths);
+
+  await key.click();
+  await expect(key).toHaveAttribute("aria-pressed", "false");
+  await expect(cards).toHaveCount(total);
+});
+
+test("a filtered-out block still reaches its card", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await visitAndVerify(page, "/projects/", "zh-CN");
+  await page.locator("button[data-language]").last().click();
+  const block = page.locator(".heap__map a[data-away]").first();
+  const id = (await block.getAttribute("href"))?.slice(1) ?? "";
+  await block.click();
+  await expect(page).toHaveURL(new RegExp(`#${id}$`));
+  await expect(page.locator(`[id="${id}"]`)).toBeInViewport();
+});
+
+test("theme toggle updates and persists the selected theme", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await visitAndVerify(page, "/", "zh-CN");
+  const root = page.locator("html");
   const toggle = page.locator("button[data-theme-toggle]");
+  await expect(root).toHaveAttribute("data-moe-theme", "auto");
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+
   await toggle.click();
-  /** @brief 用户切换后的页面主题 (Document theme after the user toggle)。 */
-  const selectedTheme = initialTheme === "dark" ? "light" : "dark";
-  await expect(page.locator("html")).toHaveAttribute("data-theme", selectedTheme);
-  await expect(toggle).toHaveAttribute("aria-pressed", String(selectedTheme === "dark"));
+  await expect(root).toHaveAttribute("data-moe-theme", "dark");
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
   await page.reload({ waitUntil: "domcontentloaded" });
-  await expect(page.locator("html")).toHaveAttribute("data-theme", selectedTheme);
+  await expect(root).toHaveAttribute("data-moe-theme", "dark");
+});
+
+test("a theme saved before the redesign still applies", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("site-theme", "dark"));
+  await visitAndVerify(page, "/now/", "zh-CN");
+  await expect(page.locator("html")).toHaveAttribute("data-moe-theme", "dark");
 });
 
 test("Uses and Now render as semantic showcases instead of article columns", async ({ page }) => {
@@ -376,19 +444,6 @@ test("Uses and Now render as semantic showcases instead of article columns", asy
   await expect(page.locator(".showcase-section")).toHaveCount(4);
   await expect(page.locator(".showcase-section h2")).toHaveCount(4);
   await expect(page.locator(".showcase-item h3")).toHaveCount(6);
-});
-
-test("reduced-motion preference keeps every showcase section immediately visible", async ({
-  page,
-}) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await visitAndVerify(page, "/now/", "zh-CN");
-
-  /** @brief 减少动态效果时的全部显现区块 (All reveal regions with reduced motion enabled)。 */
-  const revealRegions = page.locator("[data-reveal]");
-  expect(await revealRegions.count()).toBeGreaterThan(1);
-  await expect(page.locator("html")).not.toHaveClass(/motion-ready/);
-  for (const region of await revealRegions.all()) await expect(region).toBeVisible();
 });
 
 test("bilingual 404 language switch returns to an existing localized home", async ({ page }) => {

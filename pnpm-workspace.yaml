@@ -4,6 +4,16 @@ allowBuilds:
   esbuild: true
   # Wrangler's local Workers runtime verifies its platform binary at install time.
   workerd: true
+# The design system's rich-text editor is never loaded here; dropping its engine
+# keeps React and ProseMirror out of a static site's dependency graph.
+overrides:
+  '@tiptap/extension-table': '-'
+  '@tiptap/extension-task-item': '-'
+  '@tiptap/extension-task-list': '-'
+  '@tiptap/markdown': '-'
+  '@tiptap/pm': '-'
+  '@tiptap/react': '-'
+  '@tiptap/starter-kit': '-'
 minimumReleaseAgeExclude:
   - '@biomejs/biome@2.5.11'
   - '@biomejs/cli-darwin-arm64@2.5.11'

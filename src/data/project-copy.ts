@@ -9,10 +9,10 @@ export interface ProjectCopy {
   viewAll: string;
   /** @brief GitHub 项目列表的无障碍标签 (Accessible label for the GitHub project list)。 */
   listLabel: string;
+  /** Accessible name of the language tally. */
+  languagesLabel: string;
   /** @brief 离线快照状态说明 (Offline-snapshot status message)。 */
   fallbackNotice: string;
-  /** @brief 无项目简介时的替代文案 (Fallback copy when a project has no description)。 */
-  missingDescription: string;
   /** @brief 项目主题列表的无障碍标签 (Accessible label for project topics)。 */
   topicsLabel: string;
 }
@@ -23,17 +23,17 @@ export const PROJECT_COPY = {
     title: "项目",
     viewAll: "在 GitHub 查看全部",
     listLabel: "GitHub 项目列表",
+    languagesLabel: "语言分布",
     fallbackNotice: "GitHub 暂时没有返回完整目录；当前展示离线项目快照，下一次构建会自动重新同步。",
-    missingDescription: "这个项目正在安静地生长，简介稍后补完。",
     topicsLabel: "项目主题",
   },
   en: {
     title: "Projects",
     viewAll: "View all on GitHub",
     listLabel: "GitHub project list",
+    languagesLabel: "Languages",
     fallbackNotice:
       "GitHub did not return the full catalog, so this build is showing the offline project snapshot. The next build will try to sync again.",
-    missingDescription: "This project is quietly taking shape. A description is coming soon.",
     topicsLabel: "Project topics",
   },
 } as const satisfies Record<Locale, ProjectCopy>;
@@ -66,10 +66,8 @@ export interface LocalizedProjectDescription {
 export function localizeProjectDescription(
   project: GitHubProject,
   locale: Locale,
-): LocalizedProjectDescription {
-  /** @brief 当前语言的无简介替代文案 (Locale-specific missing-description copy)。 */
-  const fallback = PROJECT_COPY[locale].missingDescription;
-  if (!project.description) return { text: fallback };
+): LocalizedProjectDescription | undefined {
+  if (!project.description) return undefined;
 
   if (locale === "zh") {
     /** @brief 当前项目的人工中文简介 (Human-authored Chinese description for this project)。 */

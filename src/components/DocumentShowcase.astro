@@ -1,73 +1,144 @@
 ---
+import Badge from "@moesegfault/style/astro/Badge.astro";
 import type { ShowcaseDocument, ShowcaseVariant } from "../lib/document-showcase";
-import "../styles/showcase.css";
+import type { Mood } from "../pixel/core";
+import PageIntro from "./PageIntro.astro";
+import RailSection from "./RailSection.astro";
 
-/** @brief 文档展陈组件属性 (Document-showcase component properties)。 */
 interface Props {
-  /** @brief 页面视觉变体 (Page visual variant)。 */
   variant: ShowcaseVariant;
-  /** @brief 页面眉题 (Page eyebrow)。 */
-  eyebrow: string;
-  /** @brief 页面氛围导语 (Atmospheric page introduction)。 */
-  lede: string;
-  /** @brief 更新时间标签 (Update-date label)。 */
   updatedLabel: string;
-  /** @brief 已章节化的事实内容 (Sectionized factual content)。 */
   document: ShowcaseDocument;
 }
 
-/** @brief 展陈页面的全部输入 (All inputs for the showcase page)。 */
-const { variant, eyebrow, lede, updatedLabel, document } = Astro.props;
+const { variant, updatedLabel, document } = Astro.props;
+const mood: Mood = variant === "toolkit" ? "keen" : "glad";
 ---
 
 <article class="showcase" data-variant={variant}>
-  <header class="showcase-hero" data-reveal>
-    <div class="showcase-hero__copy">
-      <p class="eyebrow">{eyebrow}</p>
-      <h1>{document.title}</h1>
-      <p class="showcase-hero__lede">{lede}</p>
-      {document.introHtml && <div class="showcase-hero__source-intro" set:html={document.introHtml} />}
-    </div>
+  <PageIntro title={document.title} {mood}>
+    {document.introHtml && <div class="showcase__intro" set:html={document.introHtml} />}
+    {
+      document.updated && (
+        <Badge tone="success">
+          <span class="moe-visually-hidden">{updatedLabel} </span>
+          <time datetime={document.updated}>{document.updated}</time>
+        </Badge>
+      )
+    }
+  </PageIntro>
 
-    <div class="showcase-hero__signal" aria-hidden="true">
-      <span class="showcase-hero__orbit"></span>
-      <span class="showcase-hero__core">{variant === "toolkit" ? "//" : "●"}</span>
-    </div>
-
-    <div class="showcase-hero__meta">
-      {document.updated && <p><span>{updatedLabel}</span><strong>{document.updated.replaceAll("-", ".")}</strong></p>}
-      <nav aria-label={document.title}>
-        {document.sections.map((section, index) => (
-          <a href={`#${variant}-${index + 1}`}>{section.title}</a>
-        ))}
-      </nav>
-    </div>
-  </header>
-
-  <div class="showcase-grid">
-    {document.sections.map((section, index) => (
-      <section
+  {
+    document.sections.map((section, index) => (
+      <RailSection
         id={`${variant}-${index + 1}`}
         class="showcase-section"
-        data-reveal
-        style={`--section-index: "${String(index + 1).padStart(2, "0")}"; --reveal-delay: ${(index % 4) * 45}ms`}
+        title={section.title}
       >
-        <header class="showcase-section__header">
-          <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
-          <h2>{section.title}</h2>
-        </header>
-        {section.html && <div class="showcase-section__body" set:html={section.html} />}
+        {section.html && <div class="showcase__body" set:html={section.html} />}
         {section.items.length > 0 && (
           <div class="showcase-items">
             {section.items.map((item) => (
               <article class="showcase-item">
                 <h3>{item.title}</h3>
-                <div set:html={item.html} />
+                <div class="showcase__body" set:html={item.html} />
               </article>
             ))}
           </div>
         )}
-      </section>
-    ))}
-  </div>
+      </RailSection>
+    ))
+  }
 </article>
+
+<style>
+  .showcase__intro {
+    max-width: 36rem;
+    color: var(--moe-text-soft);
+    font-size: var(--moe-font-size-sm);
+  }
+  .showcase__intro > :global(:last-child) {
+    margin-block-end: 0;
+  }
+  .showcase > :global(:last-child) {
+    border-block-end: 0;
+  }
+
+  .showcase__body :global(p) {
+    max-width: 48rem;
+  }
+  .showcase__body > :global(:last-child) {
+    margin-block-end: 0;
+  }
+  .showcase__body :global(p) {
+    margin-block-end: 1em;
+  }
+  .showcase__body :global(strong) {
+    color: var(--moe-heading);
+  }
+  .showcase__body :global(code) {
+    padding: 0.12em 0.36em;
+    border: 1px solid var(--moe-line);
+    border-radius: var(--moe-radius-xs);
+    color: var(--moe-heading);
+    background: var(--moe-hover);
+    font-size: 0.875em;
+  }
+  /* Lists are parts lists: ruled rows with a pixel for a bullet. */
+  .showcase__body :global(ul) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    column-gap: var(--moe-space-5);
+    margin: 0 0 1.25em;
+    padding: 0;
+    border-block-end: 1px solid var(--moe-line);
+    list-style: none;
+  }
+  .showcase__body :global(li) {
+    position: relative;
+    padding: 0.5rem 0 0.5rem 1.5rem;
+    border-block-start: 1px solid var(--moe-line);
+  }
+  .showcase__body :global(li)::before {
+    position: absolute;
+    inset: 1.1rem auto auto 0.25rem;
+    width: 0.375rem;
+    height: 0.375rem;
+    background: var(--moe-accent);
+    content: "";
+    transition: scale var(--moe-bounce);
+  }
+  .showcase__body :global(li:hover)::before {
+    scale: 1.6;
+  }
+
+  .showcase-items {
+    display: grid;
+    margin-block: calc(-1 * clamp(1.75rem, 3vw, 2.5rem));
+    margin-inline: calc(-1 * var(--site-gutter));
+  }
+  .showcase-item {
+    display: grid;
+    grid-template-columns: minmax(0, 13rem) minmax(0, 1fr);
+    gap: var(--moe-space-5);
+    padding: clamp(1.75rem, 3vw, 2.5rem) var(--site-gutter);
+  }
+  .showcase-item + .showcase-item {
+    border-block-start: 1px solid var(--moe-line);
+  }
+  .showcase-item h3 {
+    margin: 0;
+    font-size: 1.0625rem;
+  }
+  @media (max-width: 64rem) {
+    .showcase-item {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--moe-space-3);
+    }
+  }
+  @media (max-width: 52rem) {
+    .showcase-items {
+      margin-block-start: 0;
+    }
+  }
+</style>

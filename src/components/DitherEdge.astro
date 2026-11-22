@@ -1,0 +1,21 @@
+---
+import { ditherMask } from "../pixel/dither";
+
+const ROWS = 20;
+---
+
+<div class="dither-edge" style={`--dither:${ditherMask(ROWS)};--dither-rows:${ROWS}`} aria-hidden="true"></div>
+
+<style>
+  .dither-edge {
+    --dither-pixel: clamp(4px, 0.45vw, 6px);
+    position: absolute;
+    z-index: -1;
+    /* Pushed out one pixel so no half-pixel seam shows. */
+    inset: auto calc(50% - 50vw) -1px;
+    height: calc(var(--dither-rows) * var(--dither-pixel));
+    background: var(--moe-color-background);
+    mask: var(--dither) 50% 0 / calc(8 * var(--dither-pixel)) 100% repeat-x;
+    pointer-events: none;
+  }
+</style>

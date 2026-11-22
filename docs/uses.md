@@ -1,7 +1,5 @@
 # Uses
 
-This is a current snapshot of the tools I actually use. It changes over time as my workflow changes.
-
 ## Computing Environment
 
 - Windows as the host desktop operating system.

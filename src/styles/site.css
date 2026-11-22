@@ -1,0 +1,136 @@
+/* The site owns layout and pixel tones; colors, lines, and controls come from moeSegFault Style. */
+
+:root {
+  --site-header: 3.5rem;
+  --site-gutter: clamp(1rem, 3vw, 2rem);
+
+  --px-moe: var(--moe-color-honey-200);
+  --px-name: var(--moe-color-snow-50);
+  --px-rim: var(--moe-color-honey-500);
+  --px-shell: var(--moe-color-honey-300);
+  --px-plate: var(--moe-color-snow-100);
+  --px-ink: var(--moe-color-leather-950);
+  --px-blush: var(--moe-color-klee-300);
+  --px-leaf: var(--moe-color-clover-300);
+  --px-vein: var(--moe-color-clover-500);
+  --px-hot: var(--moe-color-snow-50);
+  --px-spark: var(--moe-color-flame-400);
+  --px-glow: color-mix(in srgb, var(--moe-color-brand) 60%, var(--moe-color-flame-500));
+  --px-ground: color-mix(in srgb, var(--moe-color-brand) 82%, black);
+}
+
+html {
+  scroll-padding-block-start: calc(var(--site-header) + 1.5rem);
+}
+body {
+  overflow-wrap: anywhere;
+}
+/* Library controls set their own display, which would otherwise win over the attribute. */
+[hidden] {
+  display: none;
+}
+main:focus {
+  outline: none;
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 100;
+  inset: 0.5rem auto auto 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--moe-radius-sm);
+  color: var(--moe-background);
+  background: var(--moe-heading);
+  font-size: var(--moe-font-size-sm);
+  translate: 0 -200%;
+  transition: translate var(--moe-spring);
+}
+.skip-link:focus {
+  translate: 0;
+}
+
+/* One ruled frame carries the whole site. */
+.frame {
+  width: min(76rem, 100%);
+  margin-inline: auto;
+  border-inline: 1px solid var(--moe-line);
+}
+.pad {
+  padding-inline: var(--site-gutter);
+}
+.lede {
+  max-width: 36rem;
+  font-size: clamp(1rem, 1.5vw, 1.125rem);
+  line-height: 1.7;
+}
+/* Fills the viewport without adding scroll width. */
+.bleed {
+  box-shadow: 0 0 0 100vmax var(--moe-background);
+  clip-path: inset(0 -100vmax);
+}
+
+.site-shell {
+  display: grid;
+  min-height: 100svh;
+  grid-template-rows: auto 1fr auto;
+  overflow-x: clip;
+}
+.site-main {
+  display: grid;
+  grid-template-rows: 1fr;
+}
+.site-footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--moe-space-2) var(--moe-space-5);
+  padding-block: var(--moe-space-5);
+  border-block-start: 1px solid var(--moe-line);
+  margin-block-start: -1px;
+  color: var(--moe-text-soft);
+  font-size: 0.8125rem;
+}
+
+/* Pages hand over through the nav mark and Core. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+:root:not([data-theme-shift]) {
+  & .site-header {
+    view-transition-name: site-header;
+  }
+  & .site-nav__mark {
+    view-transition-name: nav-mark;
+  }
+  & :is(.page-intro__core, .not-found__core) {
+    view-transition-name: core;
+  }
+}
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-group(*) {
+  animation-duration: var(--moe-motion-spring);
+  animation-timing-function: var(--moe-motion-ease-emphasized);
+}
+/* biome-ignore lint/correctness/noUnknownTypeSelector: "core" is a transition name. */
+::view-transition-group(core),
+::view-transition-group(nav-mark) {
+  animation-duration: 560ms;
+  animation-timing-function: var(--moe-motion-ease-spring);
+}
+::view-transition-old(root) {
+  animation-duration: var(--moe-motion-base);
+}
+::view-transition-new(root) {
+  animation-duration: var(--moe-motion-slow);
+}
+/* The clover-shaped clip alone carries a theme change. */
+:root[data-theme-shift]::view-transition-old(root),
+:root[data-theme-shift]::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}

@@ -4,14 +4,16 @@
  * (The brand name and GitHub handle are independent identities and must not be derived from one another)。
  */
 export const SITE = {
-  name: "MoeSegFault",
-  title: "MoeSegFault · me",
+  name: "moeSegFault",
+  title: "moeSegFault · me",
   url: "https://me.moesegfault.dev",
   githubHandle: "kleedaisuki",
   githubUrl: "https://github.com/kleedaisuki",
   blogUrl: "https://atelier.moesegfault.dev",
   botUrl: "https://bot.moesegfault.dev",
   startYear: 2024,
+  /** Visitors already have a preference saved under this key. */
+  themeStorageKey: "site-theme",
 } as const;
 
 /** @brief 站点配置类型 (Site configuration type)。 */

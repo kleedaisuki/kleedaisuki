@@ -168,6 +168,18 @@ function preloadAvatar(card: HTMLElement, avatarUrl: string): Promise<void> {
   });
 }
 
+/** A number that changed since the build says so once, and only if motion is welcome. */
+function updateStatistic(card: HTMLElement, id: string, value: number): void {
+  const target = profileElement<HTMLElement>(card, `[data-profile-stat="${id}"]`);
+  if (!target || target.textContent === String(value)) return;
+  target.textContent = String(value);
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  target.animate(
+    { opacity: [0, 1], translate: ["0 0.5rem", "0 0"] },
+    { duration: 480, easing: "cubic-bezier(0.2, 0.9, 0.2, 1)" },
+  );
+}
+
 /**
  * @brief 用动态 GitHub 响应原位更新资料卡 (Update a profile card in place with a live GitHub response)。
  * @param card GitHub 资料卡根元素 (GitHub profile-card root)。
@@ -179,12 +191,6 @@ function applyLiveProfile(card: HTMLElement, profile: GitHubProfile): void {
   const displayName = profile.name ?? profile.login;
   /** @brief 当前页面语言 (Active page locale)。 */
   const locale = card.dataset.profileLocale ?? "en";
-  /** @brief 本地化后的 GitHub 加入年份 (Localized GitHub join year)。 */
-  const joinedYear = new Intl.DateTimeFormat(locale, { year: "numeric" }).format(
-    new Date(profile.createdAt),
-  );
-  /** @brief 适合紧凑显示的个人网站地址 (Personal website address formatted for compact display)。 */
-  const displayBlog = profile.blog?.replace(/^https?:\/\//, "").replace(/\/$/, "") ?? null;
   /** @brief 头像元素 (Avatar element)。 */
   const avatar = profileElement<HTMLImageElement>(card, "[data-profile-avatar]");
   if (avatar) {
@@ -220,31 +226,9 @@ function applyLiveProfile(card: HTMLElement, profile: GitHubProfile): void {
     profile.location,
   );
 
-  /** @brief 公开仓库计数元素 (Public-repository count element)。 */
-  const repositories = profileElement<HTMLElement>(card, '[data-profile-stat="repositories"]');
-  if (repositories) repositories.textContent = String(profile.publicRepositories);
-  /** @brief 关注者计数元素 (Follower-count element)。 */
-  const followers = profileElement<HTMLElement>(card, '[data-profile-stat="followers"]');
-  if (followers) followers.textContent = String(profile.followers);
-  /** @brief 正在关注计数元素 (Following-count element)。 */
-  const following = profileElement<HTMLElement>(card, '[data-profile-stat="following"]');
-  if (following) following.textContent = String(profile.following);
-
-  /** @brief 加入年份元素 (Join-year element)。 */
-  const joined = profileElement<HTMLElement>(card, "[data-profile-joined]");
-  if (joined) joined.textContent = joinedYear;
-
-  /** @brief 个人网站链接 (Personal website link)。 */
-  const blog = profileElement<HTMLAnchorElement>(card, "[data-profile-blog]");
-  /** @brief 个人网站显示文本 (Personal website display text)。 */
-  const blogText = profileElement<HTMLElement>(card, "[data-profile-blog-text]");
-  if (blog && blogText) {
-    blog.hidden = !profile.blog;
-    if (profile.blog) {
-      blog.href = profile.blog;
-      blogText.textContent = displayBlog ?? profile.blog;
-    }
-  }
+  updateStatistic(card, "repositories", profile.publicRepositories);
+  updateStatistic(card, "followers", profile.followers);
+  updateStatistic(card, "following", profile.following);
 }
 
 /**

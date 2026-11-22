@@ -1,78 +1,57 @@
 ---
 import BaseLayout from "@layouts/BaseLayout.astro";
+import Button from "@moesegfault/style/astro/Button.astro";
+import CoreMascot from "../components/CoreMascot.astro";
+import PixelArt from "../components/PixelArt.astro";
+import { CAP_HEIGHT, setType } from "../pixel/typeface";
 
-/** @brief GitHub Pages 使用的双语未找到页面 (Bilingual not-found page for GitHub Pages)。 */
+/** The unmapped address; 0x194 is 404. */
+const address = setType("0x194", "moe");
 ---
 
 <BaseLayout
   locale="zh"
   title="页面未找到 / Page not found"
-  description="MoeSegFault：请求的页面不存在。The requested page does not exist."
+  description="moeSegFault：请求的页面不存在。The requested page does not exist."
   robots="noindex"
 >
-  <section class="not-found surface-card" aria-labelledby="not-found-title">
-    <p class="not-found__brand">MoeSegFault</p>
-    <p class="not-found__code" aria-hidden="true">404</p>
-    <h1 id="not-found-title">页面未找到 <span lang="en">/ Page not found</span></h1>
-    <p class="not-found__message">
-      请求的页面不存在或已经移动。<br />
-      <span lang="en">The requested page does not exist or has moved.</span>
-    </p>
-    <nav class="not-found__actions" aria-label="选择语言 / Choose a language">
-      <a class="button" href="/">简体中文首页</a>
-      <a class="button button--ghost" href="/en/" lang="en">English home</a>
-    </nav>
+  <section class="not-found bleed pad" data-moe-surface="brand" aria-labelledby="not-found-title">
+    <CoreMascot mood="dizzy" class="not-found__core" />
+    <div class="not-found__copy">
+      <PixelArt class="not-found__address" cells={address.cells} columns={address.width} rows={CAP_HEIGHT} />
+      <h1 id="not-found-title">页面未找到 <span lang="en">/ Page not found</span></h1>
+      <nav class="moe-cluster" aria-label="选择语言 / Choose a language">
+        <Button href="/">简体中文首页</Button>
+        <Button href="/en/" variant="secondary" lang="en">English home</Button>
+      </nav>
+    </div>
   </section>
 </BaseLayout>
 
 <style>
   .not-found {
-    display: grid;
-    justify-items: start;
-    max-width: 46rem;
-    margin: clamp(3rem, 12vw, 8rem) auto;
-    padding: clamp(1.5rem, 5vw, 3rem);
-  }
-
-  .not-found__brand {
-    margin: 0 0 1rem;
-    color: var(--coral-strong);
-    font-size: 0.78rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-  }
-
-  .not-found__code {
-    margin: 0 0 0.5rem;
-    color: var(--coral);
-    font-size: clamp(3.5rem, 14vw, 7rem);
-    font-weight: 700;
-    line-height: 0.9;
-    letter-spacing: -0.06em;
-  }
-
-  .not-found h1 {
-    margin: 0;
-    overflow-wrap: anywhere;
-    font-size: clamp(1.75rem, 7vw, 2.75rem);
-    line-height: 1.2;
-  }
-
-  .not-found h1 span {
-    color: var(--text-soft);
-  }
-
-  .not-found__message {
-    max-width: 38rem;
-    margin: 1rem 0 0;
-    color: var(--text-soft);
-    line-height: 1.8;
-  }
-
-  .not-found__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 1.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(2rem, 6vw, 5rem);
+    padding-block: clamp(3rem, 10vw, 7rem);
+  }
+  .not-found :global(.not-found__core) {
+    width: clamp(9rem, 24vw, 16rem);
+  }
+  .not-found__copy {
+    display: grid;
+    justify-items: start;
+    gap: var(--moe-space-4);
+  }
+  .not-found__copy > * {
+    margin: 0;
+  }
+  .not-found :global(.not-found__address) {
+    width: min(100%, 22rem);
+  }
+  .not-found h1 {
+    font-size: clamp(1.75rem, 5vw, 2.75rem);
   }
 </style>
