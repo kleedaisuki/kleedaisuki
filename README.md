@@ -41,18 +41,18 @@
 <table>
   <tr>
     <td nowrap><a href="https://same.moesegfault.dev"><b>same</b></a></td>
-    <td width="100%">准确找出本地真正相同的文件，整理重复内容。</td>
+    <td width="720">准确找出本地真正相同的文件，整理重复内容。</td>
   </tr>
   <tr>
     <td nowrap><a href="https://scrap.moesegfault.dev"><b>scrap</b></a></td>
-    <td width="100%">本地优先的秘密与字段存储，连接桌面应用和命令行。</td>
+    <td width="720">本地优先的秘密与字段存储，连接桌面应用和命令行。</td>
   </tr>
   <tr>
     <td nowrap><a href="https://xmlsquish.moesegfault.dev"><b>xmlsquish</b></a></td>
-    <td width="100%">创建、格式化并构建多文件 XML 提示词项目。</td>
+    <td width="720">创建、格式化并构建多文件 XML 提示词项目。</td>
   </tr>
   <tr>
     <td nowrap><a href="https://style.moesegfault.dev"><b>moeSegFault&nbsp;Style</b></a></td>
-    <td width="100%">绯红与蜜金的设计系统，面向 React、Astro 与纯 HTML。</td>
+    <td width="720">绯红与蜜金的设计系统，面向 React、Astro 与纯 HTML。</td>
   </tr>
 </table>

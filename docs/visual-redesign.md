@@ -68,7 +68,8 @@ Only what is touched moves, on package springs that are zero under reduced motio
 - **README.** It is the GitHub profile, not project documentation. Its text is real text, its SVG needs no fonts, links, or
   scripts, and the banner dissolves into transparency so it fits either GitHub theme. The banner animates once and is
   static under reduced motion. Keep the first column narrow: phones give the table about 300 px.
-  `width="100%"` on the tools' second column makes both tables span the page.
+  The tools' second column asks for 720 px and is clamped, so both
+  tables span the page; percentages do nothing because GitHub lays tables out as `display: block`.
 
 ## Verification on 2026-11-22
 
@@ -77,5 +78,5 @@ Only what is touched moves, on package springs that are zero under reduced motio
 - README rendered through GitHub's Markdown API with `github-markdown-css` at 888 and 375 px, light and dark.
 - Blast cost, headless Chromium at 1920×1000: median 1.3 ms per frame, p95 8.6 ms at 1× and 8.3 ms at 2×, worst single
   frame 21.1 ms. Zero frames at rest.
-- Not covered: WebKit (system libraries missing on this machine), physical devices, assistive technology, the README on
-  github.com itself.
+- Production: every route, the profile card, a blast, and the project filter; the README on github.com at 360–1280 px.
+- Not covered: WebKit (system libraries missing on this machine), physical devices, assistive technology.
